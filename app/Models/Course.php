@@ -5,22 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Module extends Model implements HasMedia
+class Course extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\ModuleFactory> */
     use HasFactory, HasUuids, LogsActivity, SoftDeletes, InteractsWithMedia;
 
     protected $guarded = [];
 
-    protected $appends = ['cover'];
+    protected $appends = ['file'];
     protected $with = [];
 
     protected $hidden = [
@@ -51,36 +49,17 @@ class Module extends Model implements HasMedia
         return (new static)->statusMap;
     }
 
-    public function getCoverAttribute()
+    public function getFileAttribute()
     {
-        $lastMedia = $this->getMedia('cover')->last();
+        $lastMedia = $this->getMedia('file')->last();
 
         return [
             'uuid' => $lastMedia?->uuid,
-            'url' => $lastMedia ? $this->getFirstMediaUrl('cover', '', $lastMedia) : null,
+            'url' => $lastMedia ? $this->getFirstMediaUrl('file', '', $lastMedia) : null,
             'mime_type' => $lastMedia?->mime_type,
         ];
     }
 
-    /**
-     * Get the createdBY that owns the Module
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function createdBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'foreign_key', 'other_key');
-    }
-
-    /**
-     * Get all of the courses for the Module
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function courses(): HasMany
-    {
-        return $this->hasMany(Course::class, 'module_id', 'id');
-    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -91,7 +70,7 @@ class Module extends Model implements HasMedia
                 $modelName = class_basename($this);
 
                 if ($eventName === 'created') {
-                    return "{$modelName} with title '{$this->title}' has been created.";
+                    return "{$modelName} with name '{$this->name}' has been created.";
                 } elseif ($eventName === 'updated') {
                     $changes = collect($this->getChanges())
                         ->except(['updated_at'])

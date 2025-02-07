@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OTPController;
@@ -70,6 +71,8 @@ Route::group([
             ],
             function () {
                 Route::resource('modules', ModuleController::class);
+                Route::resource('courses', CourseController::class);
+                // Route::resource('assignments', CourseController::class);
             }
         );
     });
