@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignUuid('created_by')->constrained('users')->cascadeOnDelete();
             $table->string('title')->unique();
             $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->unsignedInteger('status')->default(1);
             $table->timestamps();
             $table->softDeletes();

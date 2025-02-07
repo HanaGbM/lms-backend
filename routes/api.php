@@ -6,6 +6,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OTPController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -72,7 +73,8 @@ Route::group([
             function () {
                 Route::resource('modules', ModuleController::class);
                 Route::resource('courses', CourseController::class);
-                // Route::resource('assignments', CourseController::class);
+
+                Route::resource('questions', QuestionController::class);
             }
         );
     });

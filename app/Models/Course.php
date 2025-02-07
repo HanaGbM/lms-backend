@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -20,6 +21,9 @@ class Course extends Model implements HasMedia
 
     protected $appends = ['file'];
     protected $with = [];
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     protected $hidden = [
         'media',
@@ -27,27 +31,6 @@ class Course extends Model implements HasMedia
         'updated_at',
         'deleted_at',
     ];
-
-
-    protected $statusMap = [
-        0 => 'Inactive',
-        1 => 'Active',
-    ];
-
-    public function getStatusAttribute($value)
-    {
-        return $this->statusMap[$value];
-    }
-
-    public function setStatusAttribute($value)
-    {
-        $this->attributes['status'] = array_search($value, $this->statusMap);
-    }
-
-    public static function getStatusMap()
-    {
-        return (new static)->statusMap;
-    }
 
     public function getFileAttribute()
     {
@@ -60,6 +43,10 @@ class Course extends Model implements HasMedia
         ];
     }
 
+    public function module(): BelongsTo
+    {
+        return $this->belongsTo(Module::class);
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

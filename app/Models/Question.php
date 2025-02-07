@@ -13,17 +13,18 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Module extends Model implements HasMedia
+class Question extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\ModuleFactory> */
+    /** @use HasFactory<\Database\Factories\QuestionFactory> */
     use HasFactory, HasUuids, LogsActivity, SoftDeletes, InteractsWithMedia;
 
     protected $guarded = [];
 
-    protected $appends = ['cover'];
-    protected $with = [];
+    protected $appends = ['file'];
+    protected $with = ['options'];
     protected $casts = [
         'is_active' => 'boolean',
+        'score_value' => 'float',
     ];
     protected $hidden = [
         'media',
@@ -32,46 +33,27 @@ class Module extends Model implements HasMedia
         'deleted_at',
     ];
 
-    public function getCoverAttribute()
+    public function getFileAttribute()
     {
-        $lastMedia = $this->getMedia('cover')->last();
+        $lastMedia = $this->getMedia('file')->last();
 
         return [
             'uuid' => $lastMedia?->uuid,
-            'url' => $lastMedia ? $this->getFirstMediaUrl('cover', '', $lastMedia) : null,
+            'url' => $lastMedia ? $this->getFirstMediaUrl('file', '', $lastMedia) : null,
             'mime_type' => $lastMedia?->mime_type,
         ];
     }
 
-    /**
-     * Get the createdBY that owns the Module
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function createdBy(): BelongsTo
+    public function module(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'foreign_key', 'other_key');
+        return $this->belongsTo(Module::class);
     }
 
-    /**
-     * Get all of the courses for the Module
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function courses(): HasMany
+    public function options(): HasMany
     {
-        return $this->hasMany(Course::class, 'module_id', 'id');
+        return $this->hasMany(QuestionOption::class, 'question_id', 'id');
     }
 
-    /**
-     * Get all of the questions for the Module
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function questions(): HasMany
-    {
-        return $this->hasMany(Question::class, 'module_id', 'id');
-    }
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

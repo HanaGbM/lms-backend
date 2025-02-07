@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('courses', function (Blueprint $table) {
+        Schema::create('questions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('module_id')->constrained('modules')->cascadeOnDelete();
             $table->string('name')->unique();
             $table->text('description')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('category')->default('Test');
+            $table->enum('question_type', ['choice', 'short', 'choice_short'])->default('choice');
+            $table->string('score_value')->default(1);
             $table->unsignedInteger('status')->default(1);
             $table->timestamps();
             $table->softDeletes();
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('courses');
+        Schema::dropIfExists('questions');
     }
 };
