@@ -2,25 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+
+        return User::when($request->has('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%")
+                ->orWhere('email', 'like', "%{$request->search}%")
+                ->orWhere('phone', 'like', "%{$request->search}%");
+        })->latest()->with('roles')->paginate($request->per_page ?? 10);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        //
+        try {
+            DB::beginTransaction();
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'username' => $request->username ?? $this->generateUniqueUsername($request->name),
+                'password' => bcrypt($request->password),
+            ]);
+
+            $user->syncRoles($request->roles);
+
+            DB::commit();
+
+            return response()->json(['message' => 'User created successfully'], 201);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     /**
@@ -28,15 +55,31 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        //
+        return $user->load('roles');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        //
+        try {
+            DB::beginTransaction();
+
+            $user->update([
+                'name' => $request->name ?? $user->name,
+                'email' => $request->email ?? $user->email,
+                'phone' => $request->phone ?? $user->phone,
+            ]);
+
+            $user->syncRoles($request->roles);
+
+            DB::commit();
+
+            return response()->json(['message' => 'User updated successfully'], 200);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     /**
@@ -44,6 +87,24 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        $user->delete();
+
+        return response()->json(['message' => 'User deleted successfully'], 200);
+    }
+
+    public function generateUniqueUsername($name)
+    {
+        $username = Str::slug($name);
+        $existingUser = User::where('username', $username)->first();
+
+        if ($existingUser) {
+            $username .= rand(1000, 9999);
+        }
+
+        while (User::where('username', $username)->exists()) {
+            $username = Str::slug($name) . rand(1000, 1000);
+        }
+
+        return $username;
     }
 }

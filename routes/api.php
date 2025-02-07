@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OTPController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
@@ -47,13 +49,15 @@ Route::group([
         Route::post('read-all-notifications', [NotificationController::class, 'readNotifications']);
         Route::post('read-notification/{id}', [NotificationController::class, 'readNotification']);
 
-
-        Route::group([
-            'middleware' => 'role:Admin',
-        ], function () {});
         /**
          * Admin Endpoints */
+        Route::group([
+            'middleware' => 'role:Admin',
+        ], function () {
+            Route::get('get-activity-logs', [ActivityLogController::class, 'index']);
 
-        Route::get('get-activity-logs', [ActivityLogController::class, 'index']);
+            Route::resource('users', UserController::class);
+            Route::resource('roles', RoleController::class);
+        });
     });
 });
