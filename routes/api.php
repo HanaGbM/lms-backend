@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OTPController;
 use App\Http\Controllers\ResetPasswordController;
@@ -59,5 +60,17 @@ Route::group([
             Route::resource('users', UserController::class);
             Route::resource('roles', RoleController::class);
         });
+
+
+        /**
+         * Teachers Endpoints */
+        Route::group(
+            [
+                'middleware' => 'role:Teacher'
+            ],
+            function () {
+                Route::resource('modules', ModuleController::class);
+            }
+        );
     });
 });
