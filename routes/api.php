@@ -9,6 +9,7 @@ use App\Http\Controllers\OTPController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -67,15 +68,24 @@ Route::group([
         /**
          * Teachers Endpoints */
         Route::group(
-            [
-                'middleware' => 'role:Teacher'
-            ],
+            ['middleware' => 'role:Teacher'],
             function () {
                 Route::resource('modules', ModuleController::class);
                 Route::resource('courses', CourseController::class);
 
                 Route::resource('questions', QuestionController::class);
+
+                Route::get('assignments/{module}', [QuestionController::class, 'assignments']);
             }
         );
     });
+
+    /**
+     * Students Endpoints */
+    Route::group(
+        ['middleware' => 'role:Teacher'],
+        function () {
+            Route::get('get-modules', [StudentController::class, 'modules']);
+        }
+    );
 });

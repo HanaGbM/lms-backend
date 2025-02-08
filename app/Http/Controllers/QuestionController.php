@@ -22,12 +22,21 @@ class QuestionController extends Controller
 
         $module = Module::find($request->module_id);
 
-        $questions = $module->questions()->when($request->has('search'), function ($query) use ($request) {
+        $questions = $module->questions()->where('category', 'Test')->when($request->has('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%");
         })->get()->groupBy('question_type');
 
         return response()->json($questions);
     }
+
+    public function assignments(Request $request, Module $module)
+    {
+        $assignments = $module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%");
+        })->get()->groupBy('question_type');
+        return response()->json($assignments);
+    }
+
 
     /**
      * Store a newly created resource in storage.
