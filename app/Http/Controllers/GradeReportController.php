@@ -21,11 +21,12 @@ class GradeReportController extends Controller
                 $score = 0;
                 $answer = '';
                 $isCorrect = null;
+                $isEvaluated = true;
 
                 if ($response->question->question_type == 'short') {
                     $score = $response->score;
                     $answer = $response->other_answer ?: 'No answer provided';
-                    $answer = 'Not Evaluated';
+                    $isEvaluated = $response->score  ? true : false;
                 } elseif (isset($response->option)) {
                     $score = $response->option->is_correct ? $response->question->score_value : 0;
                     $answer = $response->option->choice ?: 'No option selected';
@@ -39,7 +40,8 @@ class GradeReportController extends Controller
                     'question_type' => $response->question->question_type,
                     'question' => $response->question->title,
                     'answer' => $answer,
-                    'is_correct' => $isCorrect
+                    'is_correct' => $isCorrect,
+                    'is_evaluated' => $isEvaluated
                 ];
             })
             ->groupBy('question_type')
