@@ -54,6 +54,16 @@ class Question extends Model implements HasMedia
         return $this->hasMany(QuestionOption::class, 'question_id', 'id');
     }
 
+    /**
+     * Get all of the responses for the Question
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function responses(): HasMany
+    {
+        return $this->hasMany(QuestionResponse::class, 'question_id', 'id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

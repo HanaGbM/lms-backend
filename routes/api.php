@@ -3,13 +3,16 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\GradeReportController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OTPController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuestionResponseController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentModuleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,9 +58,7 @@ Route::group([
 
         /**
          * Admin Endpoints */
-        Route::group([
-            'middleware' => 'role:Admin',
-        ], function () {
+        Route::group(['middleware' => 'role:Admin',], function () {
             Route::get('get-activity-logs', [ActivityLogController::class, 'index']);
 
             Route::resource('users', UserController::class);
@@ -67,25 +68,33 @@ Route::group([
 
         /**
          * Teachers Endpoints */
-        Route::group(
-            ['middleware' => 'role:Teacher'],
-            function () {
-                Route::resource('modules', ModuleController::class);
-                Route::resource('courses', CourseController::class);
+        Route::group(['middleware' => 'role:Teacher'], function () {
+            Route::resource('modules', ModuleController::class);
+            Route::resource('courses', CourseController::class);
 
-                Route::resource('questions', QuestionController::class);
+            Route::resource('questions', QuestionController::class);
 
-                Route::get('assignments/{module}', [QuestionController::class, 'assignments']);
-            }
-        );
+            Route::get('assignments/{module}', [QuestionController::class, 'assignments']);
+
+            Route::get('short-answer-test-responses/{module}', [QuestionResponseController::class, 'shortAnswerTestResponses']);
+            Route::get('short-answer-assignment-responses/{module}', [QuestionResponseController::class, 'shortAnswerAssignmentResponses']);
+            Route::post('evaluate-short-answer/{questionResponse}', [QuestionResponseController::class, 'evaluate']);
+        });
     });
 
     /**
      * Students Endpoints */
-    Route::group(
-        ['middleware' => 'role:Teacher'],
-        function () {
-            Route::get('get-modules', [StudentController::class, 'modules']);
-        }
-    );
+    Route::group(['middleware' => 'role:Student'], function () {
+        Route::get('get-modules', [StudentController::class, 'modules']);
+        Route::post('enroll-module/{module}', [StudentModuleController::class, 'store']);
+
+        Route::get('my-modules', [StudentController::class, 'myModules']);
+        Route::get('module-courses/{studentModule}', [StudentModuleController::class, 'moduleCourses']);
+        Route::get('module-tests/{studentModule}', [StudentModuleController::class, 'moduleTests']);
+        Route::get('module-assignments/{studentModule}', [StudentModuleController::class, 'moduleAssignments']);
+
+        Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
+
+        Route::get('grade-report/{studentModule}', [GradeReportController::class, 'myGrade']);
+    });
 });

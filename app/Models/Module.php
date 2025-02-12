@@ -72,6 +72,17 @@ class Module extends Model implements HasMedia
     {
         return $this->hasMany(Question::class, 'module_id', 'id');
     }
+
+    /**
+     * Get all of the students for the Module
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function students(): HasMany
+    {
+        return $this->hasMany(StudentModule::class, 'module_id', 'id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
