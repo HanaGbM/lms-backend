@@ -29,6 +29,7 @@ class StudentController extends Controller
                 $studentModule->module->is_enrolled = true;
                 return [
                     'id' => $studentModule->id,
+                    'module_id' => $studentModule->module_id,
                     'title' => $studentModule->module->title,
                     'description' => $studentModule->module->description,
                     'cover' => $studentModule->module->cover,

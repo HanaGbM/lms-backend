@@ -73,6 +73,11 @@ class Module extends Model implements HasMedia
         return $this->hasMany(Question::class, 'module_id', 'id');
     }
 
+    public function discussions()
+    {
+        return $this->morphMany(Discussion::class, 'discussable');
+    }
+
     /**
      * Get all of the students for the Module
      *

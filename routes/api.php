@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\GradeReportController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NotificationController;
@@ -56,6 +57,12 @@ Route::group([
         Route::post('read-all-notifications', [NotificationController::class, 'readNotifications']);
         Route::post('read-notification/{id}', [NotificationController::class, 'readNotification']);
 
+        Route::get('get-discussions/{module}', [DiscussionController::class, 'index']);
+        Route::get('discussion-detail/{discussion}', [DiscussionController::class, 'show']);
+        Route::post('create-discussion/{module}', [DiscussionController::class, 'store']);
+        Route::patch('update-discussion/{discussion}', [DiscussionController::class, 'update']);
+        Route::delete('delete-discussion/{discussion}', [DiscussionController::class, 'destroy']);
+
         /**
          * Admin Endpoints */
         Route::group(['middleware' => 'role:Admin',], function () {
@@ -94,7 +101,6 @@ Route::group([
         Route::get('module-assignments/{studentModule}', [StudentModuleController::class, 'moduleAssignments']);
 
         Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
-
         Route::get('grade-report/{studentModule}', [GradeReportController::class, 'myGrade']);
     });
 });
