@@ -80,14 +80,14 @@ Route::group([
             Route::resource('roles', RoleController::class);
 
             Route::get('get-teachers', [TeacherController::class, 'teachers']);
-            Route::resource('admin-modules', AdminModuleController::class);
+            Route::resource('modules', AdminModuleController::class);
         });
 
 
         /**
          * Teachers Endpoints */
         Route::group(['middleware' => 'role:Teacher'], function () {
-            Route::resource('modules', ModuleController::class);
+            Route::resource('my-modules', ModuleController::class);
             Route::resource('courses', CourseController::class);
 
             Route::resource('questions', QuestionController::class);

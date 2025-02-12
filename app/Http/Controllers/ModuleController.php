@@ -54,19 +54,20 @@ class ModuleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Module $module)
+    public function show($id)
     {
+        $module = Module::findOrFail($id);
         return $module;
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateModuleRequest $request, Module $module)
+    public function update(UpdateModuleRequest $request, $id)
     {
         try {
             DB::beginTransaction();
-
+            $module = Module::findOrFail($id);
 
             if ($module->created_by != Auth::id() && !Auth::user()->hasRole('Admin')) {
                 return response()->json([
@@ -98,8 +99,9 @@ class ModuleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Module $module)
+    public function destroy($id)
     {
+        $module = Module::findOrFail($id);
         if ($module->created_by != Auth::id() && !Auth::user()->hasRole('Admin')) {
             return response()->json([
                 'message' => 'You are not authorized to update this discussion'
