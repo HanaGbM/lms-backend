@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreModuleRequest;
-use App\Http\Requests\UpdateModuleRequest;
+use App\Http\Requests\StoreAdminModuleRequest;
+use App\Http\Requests\UpdateAdminModuleRequest;
 use App\Models\Module;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class ModuleController extends Controller
+class AdminModuleController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,14 +17,13 @@ class ModuleController extends Controller
     {
         return Module::when($request->has('search'), function ($query) use ($request) {
             $query->where('title', 'like', "%{$request->search}%");
-        })->where('created_by', auth()->id())
-            ->latest()->paginate($request->per_page ?? 10);
+        })->latest()->paginate($request->per_page ?? 10);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreModuleRequest $request)
+    public function store(StoreAdminModuleRequest $request)
     {
         try {
             DB::beginTransaction();
@@ -33,9 +31,8 @@ class ModuleController extends Controller
             $module = Module::create([
                 'title' => $request->title,
                 'description' => $request->description,
-                'price' => $request->price,
                 'created_by' => auth()->id(),
-                'teacher_id' => auth()->id(),
+                'teacher_id' => $request->teacher_id,
             ]);
 
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
@@ -54,30 +51,23 @@ class ModuleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Module $module)
+    public function show($id)
     {
+        $module = Module::findOrFail($id);
         return $module;
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateModuleRequest $request, Module $module)
+    public function update(UpdateAdminModuleRequest $request, $id)
     {
         try {
             DB::beginTransaction();
-
-
-            if ($module->created_by != Auth::id() && !Auth::user()->hasRole('Admin')) {
-                return response()->json([
-                    'message' => 'You are not authorized to update this discussion'
-                ], 403);
-            }
+            $module = Module::findOrFail($id);
 
             $module->update([
                 'title' => $request->title ?? $module->title,
-                'price' => $request->price ?? $module->price,
-                'teacher_id' => auth()->id() ?? $module->teacher_id,
                 'description' => $request->description ?? $module->description,
             ]);
 
@@ -98,13 +88,9 @@ class ModuleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Module $module)
+    public function destroy($id)
     {
-        if ($module->created_by != Auth::id() && !Auth::user()->hasRole('Admin')) {
-            return response()->json([
-                'message' => 'You are not authorized to update this discussion'
-            ], 403);
-        }
+        $module = Module::findOrFail($id);
 
         abort(403, 'Unauthorized');
         $module->delete();

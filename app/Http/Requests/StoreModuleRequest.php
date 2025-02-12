@@ -24,6 +24,7 @@ class StoreModuleRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
+            'price' => ['required', 'numeric', 'min:1'],
             'cover' => ['required', 'image', 'max:4000'],
         ];
     }

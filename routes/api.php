@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AdminModuleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DiscussionController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentModuleController;
+use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -76,6 +78,11 @@ Route::group([
 
             Route::resource('users', UserController::class);
             Route::resource('roles', RoleController::class);
+
+            Route::get('get-teachers', [TeacherController::class, 'teachers']);
+
+
+            Route::resource('admin-modules', AdminModuleController::class);
         });
 
 
