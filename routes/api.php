@@ -80,8 +80,6 @@ Route::group([
             Route::resource('roles', RoleController::class);
 
             Route::get('get-teachers', [TeacherController::class, 'teachers']);
-
-
             Route::resource('admin-modules', AdminModuleController::class);
         });
 
