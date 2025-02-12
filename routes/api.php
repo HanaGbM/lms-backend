@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OTPController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuestionResponseController;
+use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudentController;
@@ -63,6 +64,11 @@ Route::group([
         Route::patch('update-discussion/{discussion}', [DiscussionController::class, 'update']);
         Route::delete('delete-discussion/{discussion}', [DiscussionController::class, 'destroy']);
 
+
+        Route::get('get-replies/{discussion}', [ReplyController::class, 'index']);
+        Route::post('create-reply/{discussion}', [ReplyController::class, 'store']);
+        Route::patch('update-reply/{reply}', [ReplyController::class, 'update']);
+        Route::delete('delete-reply/{reply}', [ReplyController::class, 'destroy']);
         /**
          * Admin Endpoints */
         Route::group(['middleware' => 'role:Admin',], function () {

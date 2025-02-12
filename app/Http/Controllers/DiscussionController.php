@@ -17,15 +17,10 @@ class DiscussionController extends Controller
      */
     public function index(Module $module)
     {
-        return $module->discussions()->latest()->paginate(10);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return $module->discussions()->latest()->paginate(10)->through(function ($discussion) {
+            $discussion->replies = $discussion->replies()->latest()->paginate(10);
+            return $discussion->load('user');
+        });
     }
 
     /**
@@ -63,6 +58,7 @@ class DiscussionController extends Controller
      */
     public function show(Discussion $discussion)
     {
+        $discussion->replies = $discussion->replies()->latest()->paginate(10);
         return $discussion->load('user');
     }
 
@@ -106,9 +102,9 @@ class DiscussionController extends Controller
      */
     public function destroy(Discussion $discussion)
     {
-        if ($discussion->user_id !== auth()->id()) {
+        if ($discussion->user_id != Auth::id()) {
             return response()->json([
-                'message' => 'You are not authorized to delete this discussion'
+                'message' => 'You are not authorized to update this discussion'
             ], 403);
         }
 

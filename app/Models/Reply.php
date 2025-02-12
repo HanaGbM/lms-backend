@@ -6,13 +6,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Discussion extends Model implements HasMedia
+class Reply extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\DiscussionFactory> */
+    /** @use HasFactory<\Database\Factories\ReplyFactory> */
     use HasFactory,
         HasUuids,
         SoftDeletes,
@@ -28,14 +27,14 @@ class Discussion extends Model implements HasMedia
     protected $hidden = [
         'media',
         'status',
-        'discussable_id',
-        'discussable_type',
+        'replyable_id',
+        'replyable_type',
         'updated_at',
         'deleted_at',
     ];
 
 
-    public function discussable()
+    public function replyable()
     {
         return $this->morphTo();
     }
@@ -44,13 +43,6 @@ class Discussion extends Model implements HasMedia
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
-
-
-    public function replies()
-    {
-        return $this->morphMany(Reply::class, 'replyable');
-    }
-
 
     public function getImageAttribute()
     {
