@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class GradeReportController extends Controller
 {
-    public function myGrade(Request $request, StudentModule $studentModule)
+    public function myGrade(StudentModule $studentModule)
     {
         $responses = QuestionResponse::whereHas('question', function ($query) use ($studentModule) {
             $query->where('module_id', $studentModule->module_id);
@@ -27,9 +27,12 @@ class GradeReportController extends Controller
                     $score = $response->score;
                     $answer = $response->other_answer ?: 'No answer provided';
                     $isEvaluated = $response->score  ? true : false;
+                    $correctAnswer = "";
+                    $isCorrect = "";
                 } elseif (isset($response->option)) {
                     $score = $response->option->is_correct ? $response->question->score_value : 0;
                     $answer = $response->option->choice ?: 'No option selected';
+                    $correctAnswer = $response->question->options->where('is_correct', true)->first()->choice;
                     $isCorrect = $response->option->is_correct;
                 }
 
@@ -40,6 +43,7 @@ class GradeReportController extends Controller
                     'question_type' => $response->question->question_type,
                     'question' => $response->question->title,
                     'answer' => $answer,
+                    'correct_answer' => $correctAnswer,
                     'is_correct' => $isCorrect,
                     'is_evaluated' => $isEvaluated
                 ];
