@@ -126,7 +126,8 @@ class AdminModuleController extends Controller
     public function getModuleStudents(Request $request, $id)
     {
         return ModuleTeacher::findOrFail($id)
-            ->students()->paginate(10);
+            ->students()
+            ->paginate(10);
     }
 
     /**

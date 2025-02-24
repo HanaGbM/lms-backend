@@ -15,7 +15,7 @@ class StudentModule extends Model
 
     protected $guarded = [];
 
-    protected $with = [];
+    protected $with = ['student'];
 
     protected $hidden = [
         'updated_at',
