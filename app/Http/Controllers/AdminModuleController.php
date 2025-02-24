@@ -6,6 +6,7 @@ use App\Http\Requests\StoreAdminModuleRequest;
 use App\Http\Requests\UpdateAdminModuleRequest;
 use App\Models\Module;
 use App\Models\ModuleTeacher;
+use App\Models\StudentModule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -58,7 +59,7 @@ class AdminModuleController extends Controller
         return $module->load('teachers');
     }
 
-    public function assignTeacher(Request $request, $id)
+    public function assignTeachers(Request $request, $id)
     {
         $request->validate([
             'teacher_ids' => 'required|array',
@@ -74,7 +75,42 @@ class AdminModuleController extends Controller
             ]);
         }
 
-        return $module;
+        return response()->json(['message' => 'Teachers assigned successfully']);
+    }
+
+    public function assignStudents(Request $request, $id)
+    {
+        $request->validate([
+            'student_ids' => 'required|array',
+            'student_ids.*' => 'required|exists:users,id|distinct',
+        ]);
+
+        foreach ($request->student_ids as  $value) {
+            StudentModule::updateOrCreate([
+                'student_id' => $value,
+                'module_teacher_id' => $id,
+                'created_by' => auth()->id(),
+            ]);
+        }
+
+        return response()->json(['message' => 'Students assigned successfully']);
+    }
+
+    public function getModuleTeachers(Request $request, $id)
+    {
+        return ModuleTeacher::where('module_id', $id)
+            ->paginate(10)->through(function ($moduleTeacher) {
+                return [
+                    'id' => $moduleTeacher->id,
+                    'name' => $moduleTeacher->teacher->name,
+                    'username' => $moduleTeacher->teacher->username,
+                    'phone' => $moduleTeacher->teacher->phone,
+                    'email' => $moduleTeacher->teacher->email,
+                    'bod' => $moduleTeacher->teacher->bod,
+                    'assigned_at' => $moduleTeacher->created_at,
+                    'profile_photo_url' => $moduleTeacher->teacher->profile_photo_url,
+                ];
+            });
     }
 
     /**

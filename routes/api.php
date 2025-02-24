@@ -82,7 +82,10 @@ Route::group([
             Route::get('get-teachers', [TeacherController::class, 'teachers']);
             Route::resource('modules', AdminModuleController::class);
 
-            Route::post('assign-teachers/{module}', [AdminModuleController::class, 'assignTeacher']);
+            Route::post('assign-teachers/{module}', [AdminModuleController::class, 'assignTeachers']);
+
+            Route::get('get-module-teachers/{module}', [AdminModuleController::class, 'getModuleTeachers']);
+            Route::post('assign-students/{id}', [AdminModuleController::class, 'assignStudents']);
         });
 
 

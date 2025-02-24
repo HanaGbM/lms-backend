@@ -58,6 +58,8 @@ class User extends Authenticatable implements JWTSubject, HasMedia
      */
     protected $hidden = [
         'otp',
+        'current_team_id',
+        'deleted_at',
         'media',
         'password',
         'verified_at',
