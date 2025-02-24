@@ -32,6 +32,7 @@ class AdminModuleController extends Controller
                 'title' => $request->title,
                 'description' => $request->description,
                 'created_by' => auth()->id(),
+                'price' => $request->price,
             ]);
 
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
@@ -68,6 +69,7 @@ class AdminModuleController extends Controller
             $module->update([
                 'title' => $request->title ?? $module->title,
                 'description' => $request->description ?? $module->description,
+                'price' => $request->price ?? $module->price,
             ]);
 
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {

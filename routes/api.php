@@ -81,6 +81,8 @@ Route::group([
 
             Route::get('get-teachers', [TeacherController::class, 'teachers']);
             Route::resource('modules', AdminModuleController::class);
+
+            Route::post('assign-teachers/{module}', [QuestionResponseController::class, 'assignTeacher']);
         });
 
 

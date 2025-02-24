@@ -35,7 +35,6 @@ class ModuleController extends Controller
                 'description' => $request->description,
                 'price' => $request->price,
                 'created_by' => auth()->id(),
-                'teacher_id' => auth()->id(),
             ]);
 
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
@@ -78,7 +77,6 @@ class ModuleController extends Controller
             $module->update([
                 'title' => $request->title ?? $module->title,
                 'price' => $request->price ?? $module->price,
-                'teacher_id' => auth()->id() ?? $module->teacher_id,
                 'description' => $request->description ?? $module->description,
             ]);
 
