@@ -56,4 +56,14 @@ class StudentModule extends Model
     {
         return $this->belongsTo(Module::class, 'module_id', 'id');
     }
+
+    /**
+     * Get the student that owns the StudentModule
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'student_id', 'id');
+    }
 }
