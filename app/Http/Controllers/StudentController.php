@@ -71,7 +71,6 @@ class StudentController extends Controller
                 });
         })->whereHas('roles', function ($query) {
             $query->where('name', 'Student');
-        })->latest()
-            ->latest()->paginate($request->per_page ?? 10);
+        })->latest()->paginate($request->per_page ?? 10);
     }
 }
