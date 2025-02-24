@@ -55,8 +55,17 @@ class AdminModuleController extends Controller
      */
     public function show($id)
     {
-        $module = Module::findOrFail($id);
-        return $module->load('teacherModules.teacher', 'teacherModules.students');
+        $module = Module::with('teacherModules.teacher')->findOrFail($id);
+        
+        $teacherModules = $module->teacherModules->map(function ($teacherModule) {
+            $paginatedStudents = $teacherModule->students()->paginate(10);
+            $teacherModule->setRelation('students', $paginatedStudents);
+            return $teacherModule;
+        });
+
+        $module->setRelation('teacherModules', $teacherModules);
+
+        return $module;
     }
 
     public function assignTeachers(Request $request, $id)
