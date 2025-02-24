@@ -9,6 +9,11 @@ class TeacherController extends Controller
 {
     public function teachers(Request $request)
     {
+        $request->validate([
+            'per_page' => 'nullable|integer',
+            'search' => 'nullable|string',
+        ]);
+
         return User::when($request->has('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%")
                 ->where(function ($query) use ($request) {
@@ -16,7 +21,7 @@ class TeacherController extends Controller
                         ->orWhere('phone', 'like', "%{$request->search}%");
                 });
         })->whereHas('roles', function ($query) {
-            $query->where('name', 'teacher');
+            $query->where('name', 'Teacher');
         })->latest()->paginate($request->per_page ?? 10);
     }
 }
