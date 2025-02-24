@@ -14,6 +14,21 @@ class UserSeeder extends Seeder
     public function run(): void
     {
 
+        User::factory()
+            ->count(50)
+            ->create()->each(
+                function (User $user) {
+                    $user->assignRole('Student');
+                }
+            );
+
+        User::factory()
+            ->count(10)
+            ->create()->each(
+                function (User $user) {
+                    $user->assignRole('Teacher');
+                }
+            );
         $admin = User::updateOrCreate([
             'email' => 'amandesalegnb@gmail.com',
             'phone' => '251963732919',

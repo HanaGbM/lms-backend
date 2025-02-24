@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAdminModuleRequest;
 use App\Http\Requests\UpdateAdminModuleRequest;
 use App\Models\Module;
+use App\Models\ModuleTeacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -61,16 +62,15 @@ class AdminModuleController extends Controller
     {
         $request->validate([
             'teacher_ids' => 'required|array',
-            'teacher_ids.*' => 'required|exists:users,id',
+            'teacher_ids.*' => 'required|exists:users,id|distinct',
         ]);
 
         $module = Module::findOrFail($id);
 
         foreach ($request->teacher_ids as $key => $value) {
-            $module->teachers()->updateOrCreate([
+            ModuleTeacher::updateOrCreate([
+                'module_id' => $module->id,
                 'teacher_id' => $value,
-            ], [
-                'is_active' => true,
             ]);
         }
 

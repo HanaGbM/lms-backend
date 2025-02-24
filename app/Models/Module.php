@@ -24,6 +24,7 @@ class Module extends Model implements HasMedia
     protected $with = [];
     protected $casts = [
         'is_active' => 'boolean',
+        'price' => 'float',
     ];
     protected $hidden = [
         'media',

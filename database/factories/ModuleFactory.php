@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,10 @@ class ModuleFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => $this->faker->unique()->sentence,
+            'description' => $this->faker->text,
+            'price' => $this->faker->randomFloat(2, 0, 1000),
+            'created_by' => User::where('name', 'Admin')->first()?->id ?? User::factory()->create()->id,
         ];
     }
 }
