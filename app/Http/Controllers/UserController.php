@@ -17,11 +17,21 @@ class UserController extends Controller
     public function index(Request $request)
     {
 
+        $request->validate([
+            'per_page' => 'nullable|integer',
+            'search' => 'nullable|string',
+            'role' => 'required|in:Student,Teacher,Admin',
+        ]);
+
         return User::when($request->has('search'), function ($query) use ($request) {
-            $query->where('name', 'like', "%{$request->search}%")
-                ->orWhere('email', 'like', "%{$request->search}%")
-                ->orWhere('phone', 'like', "%{$request->search}%");
-        })->latest()->with('roles')->paginate($request->per_page ?? 10);
+            $query->where(function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%")
+                    ->orWhere('email', 'like', "%{$request->search}%")
+                    ->orWhere('phone', 'like', "%{$request->search}%");
+            });
+        })->latest()->whereHas('roles', function ($query) use ($request) {
+            $query->where('name', $request->role);
+        })->with('roles')->paginate($request->per_page ?? 10);
     }
 
     /**
@@ -36,6 +46,7 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
+                'bod' => $request->bod,
                 'username' => $request->username ?? $this->generateUniqueUsername($request->name),
                 'password' => bcrypt($request->password),
             ]);
@@ -70,6 +81,8 @@ class UserController extends Controller
                 'name' => $request->name ?? $user->name,
                 'email' => $request->email ?? $user->email,
                 'phone' => $request->phone ?? $user->phone,
+                'bod' => $request->bod ?? $user->bod,
+                'username' => $request->username ?? $user->username,
             ]);
 
             $user->syncRoles($request->roles);
