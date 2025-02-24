@@ -19,6 +19,9 @@ class ModuleTeacher extends Model
     ];
     protected $hidden = [
         'status',
+        'module_id',
+        'module_id',
+        'teacher_id',
         'updated_at',
         'deleted_at',
     ];

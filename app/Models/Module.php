@@ -29,6 +29,7 @@ class Module extends Model implements HasMedia
     protected $hidden = [
         'media',
         'status',
+        'created_by',
         'updated_at',
         'deleted_at',
     ];
