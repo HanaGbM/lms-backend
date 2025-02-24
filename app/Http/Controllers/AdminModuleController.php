@@ -54,6 +54,26 @@ class AdminModuleController extends Controller
     public function show($id)
     {
         $module = Module::findOrFail($id);
+        return $module->load('teachers');
+    }
+
+    public function assignTeacher(Request $request, $id)
+    {
+        $request->validate([
+            'teacher_ids' => 'required|array',
+            'teacher_ids.*' => 'required|exists:users,id',
+        ]);
+
+        $module = Module::findOrFail($id);
+
+        foreach ($request->teacher_ids as $key => $value) {
+            $module->teachers()->updateOrCreate([
+                'teacher_id' => $value,
+            ], [
+                'is_active' => true,
+            ]);
+        }
+
         return $module;
     }
 

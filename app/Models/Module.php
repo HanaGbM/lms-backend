@@ -88,6 +88,12 @@ class Module extends Model implements HasMedia
         return $this->hasMany(StudentModule::class, 'module_id', 'id');
     }
 
+    public function teachers()
+    {
+        return $this->belongsToMany(User::class, 'module_teachers', 'module_id', 'teacher_id');
+    }
+
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
