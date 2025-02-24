@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -74,6 +75,7 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         'need_create_password',
         'email_verified_at',
     ];
+
     /**
      * The accessors to append to the model's array form.
      *
@@ -82,6 +84,16 @@ class User extends Authenticatable implements JWTSubject, HasMedia
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Get all of the studentModules for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function studentModules(): HasMany
+    {
+        return $this->hasMany(StudentModule::class, 'student_id', 'id');
+    }
 
     /**
      * Get the attributes that should be cast.

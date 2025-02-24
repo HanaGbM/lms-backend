@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ModuleTeacher extends Model
@@ -30,5 +31,15 @@ class ModuleTeacher extends Model
     public function teacher()
     {
         return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    /**
+     * Get all of the students for the ModuleTeacher
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function students(): HasMany
+    {
+        return $this->hasMany(StudentModule::class, 'module_teacher_id');
     }
 }

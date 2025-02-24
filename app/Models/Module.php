@@ -94,6 +94,16 @@ class Module extends Model implements HasMedia
         return $this->belongsToMany(User::class, 'module_teachers', 'module_id', 'teacher_id');
     }
 
+    /**
+     * Get all of the teacherModules for the Module
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function teacherModules(): HasMany
+    {
+        return $this->hasMany(ModuleTeacher::class, 'module_id', 'id');
+    }
+
 
     public function getActivitylogOptions(): LogOptions
     {

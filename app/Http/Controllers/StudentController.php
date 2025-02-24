@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Module;
 use App\Models\StudentModule;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -53,5 +54,24 @@ class StudentController extends Controller
             'started_at' => $studentModule->started_at,
             'completed_at' => $studentModule->completed_at,
         ];
+    }
+
+    public function students(Request $request)
+    {
+        $request->validate([
+            'per_page' => 'nullable|integer',
+            'search' => 'nullable|string',
+        ]);
+
+        return User::when($request->has('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%")
+                ->where(function ($query) use ($request) {
+                    $query->orWhere('email', 'like', "%{$request->search}%")
+                        ->orWhere('phone', 'like', "%{$request->search}%");
+                });
+        })->whereHas('roles', function ($query) {
+            $query->where('name', 'Student');
+        })->whereDoesntHave('studentModules')->latest()
+            ->latest()->paginate($request->per_page ?? 10);
     }
 }

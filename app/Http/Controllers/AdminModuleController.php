@@ -56,7 +56,7 @@ class AdminModuleController extends Controller
     public function show($id)
     {
         $module = Module::findOrFail($id);
-        return $module->load('teachers');
+        return $module->load('teacherModules.teacher', 'teacherModules.students');
     }
 
     public function assignTeachers(Request $request, $id)
