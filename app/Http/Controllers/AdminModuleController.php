@@ -56,7 +56,7 @@ class AdminModuleController extends Controller
     public function show($id)
     {
         $module = Module::with('teacherModules.teacher')->findOrFail($id);
-        
+
         $teacherModules = $module->teacherModules->map(function ($teacherModule) {
             $paginatedStudents = $teacherModule->students()->paginate(10);
             $teacherModule->setRelation('students', $paginatedStudents);
@@ -120,6 +120,12 @@ class AdminModuleController extends Controller
                     'profile_photo_url' => $moduleTeacher->teacher->profile_photo_url,
                 ];
             });
+    }
+
+    public function getModuleStudents(Request $request, $id)
+    {
+        return ModuleTeacher::findOrFail($id)
+            ->students()->paginate(10);
     }
 
     /**

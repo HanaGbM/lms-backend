@@ -87,8 +87,9 @@ Route::group([
             Route::get('get-students', [StudentController::class, 'students']);
 
             Route::get('get-module-teachers/{module}', [AdminModuleController::class, 'getModuleTeachers']);
+            Route::get('get-module-students/{id}', [AdminModuleController::class, 'getModuleStudents']);
             Route::post('assign-students/{id}', [AdminModuleController::class, 'assignStudents']);
-        }); 
+        });
 
 
         /**
