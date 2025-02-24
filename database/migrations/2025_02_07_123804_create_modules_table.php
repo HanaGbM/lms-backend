@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('modules', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('created_by')->constrained('users')->cascadeOnDelete();
-            $table->foreignUuid('teacher_id')->constrained('users')->cascadeOnDelete();
             $table->string('title')->unique();
             $table->text('description')->nullable();
             $table->string('price')->default(0);

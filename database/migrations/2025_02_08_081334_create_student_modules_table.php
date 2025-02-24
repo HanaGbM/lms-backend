@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('student_modules', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('student_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('teacher_id')->constrained('users')->cascadeOnDelete();
             $table->foreignUuid('module_id')->constrained('modules')->cascadeOnDelete();
+            $table->foreignUuid('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->unsignedInteger('status')->default(0);

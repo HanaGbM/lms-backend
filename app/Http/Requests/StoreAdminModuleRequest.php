@@ -26,7 +26,6 @@ class StoreAdminModuleRequest extends FormRequest
             'description' => ['required', 'string'],
             'price' => ['required', 'numeric', 'min:1'],
             'cover' => ['required', 'image', 'max:4000'],
-            'teacher_id' => ['required', 'exists:users,id'],
         ];
     }
 }

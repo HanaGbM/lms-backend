@@ -32,7 +32,6 @@ class AdminModuleController extends Controller
                 'title' => $request->title,
                 'description' => $request->description,
                 'created_by' => auth()->id(),
-                'teacher_id' => $request->teacher_id,
             ]);
 
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
