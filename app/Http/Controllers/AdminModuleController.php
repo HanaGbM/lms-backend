@@ -111,6 +111,7 @@ class AdminModuleController extends Controller
             ->paginate(10)->through(function ($moduleTeacher) {
                 return [
                     'id' => $moduleTeacher->id,
+                    'teacher_id' => $moduleTeacher->teacher_id,
                     'name' => $moduleTeacher->teacher->name,
                     'username' => $moduleTeacher->teacher->username,
                     'phone' => $moduleTeacher->teacher->phone,
