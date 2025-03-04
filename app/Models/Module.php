@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
@@ -56,13 +57,13 @@ class Module extends Model implements HasMedia
     }
 
     /**
-     * Get all of the courses for the Module
+     * Get all of the chapters for the Module
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function courses(): HasMany
+    public function chapters(): HasMany
     {
-        return $this->hasMany(Course::class, 'module_id', 'id');
+        return $this->hasMany(Chapter::class, 'module_id', 'id');
     }
 
     /**
@@ -103,6 +104,17 @@ class Module extends Model implements HasMedia
     public function teacherModules(): HasMany
     {
         return $this->hasMany(ModuleTeacher::class, 'module_id', 'id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($chapter) {
+            if (empty($chapter->created_by) && Auth::check()) {
+                $chapter->created_by = Auth::id();
+            }
+        });
     }
 
 

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCourseRequest extends FormRequest
+class StoreChapterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +23,8 @@ class StoreCourseRequest extends FormRequest
     {
         return [
             'module_id' => 'required|exists:modules,id',
-            'name' => 'required|string|unique:courses,name',
+            'name' => 'required|string|unique:chapters,name,NULL,id,module_id,' . $this->module_id,
             'description' => 'required|string',
-            'file' => 'required|file',
         ];
     }
 }

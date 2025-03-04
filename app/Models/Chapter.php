@@ -2,24 +2,26 @@
 
 namespace App\Models;
 
+namespace App\Models;
+
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Course extends Model implements HasMedia
+class Chapter extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\ModuleFactory> */
+    /** @use HasFactory<\Database\Factories\ChapterFactory> */
     use HasFactory, HasUuids, LogsActivity, SoftDeletes, InteractsWithMedia;
 
     protected $guarded = [];
 
-    protected $appends = ['file'];
     protected $with = [];
     protected $casts = [
         'is_active' => 'boolean',
@@ -32,20 +34,20 @@ class Course extends Model implements HasMedia
         'deleted_at',
     ];
 
-    public function getFileAttribute()
-    {
-        $lastMedia = $this->getMedia('file')->last();
-
-        return [
-            'uuid' => $lastMedia?->uuid,
-            'url' => $lastMedia ? $this->getFirstMediaUrl('file', '', $lastMedia) : null,
-            'mime_type' => $lastMedia?->mime_type,
-        ];
-    }
-
     public function module(): BelongsTo
     {
         return $this->belongsTo(Module::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($chapter) {
+            if (empty($chapter->created_by) && Auth::check()) {
+                $chapter->created_by = Auth::id();
+            }
+        });
     }
 
     public function getActivitylogOptions(): LogOptions

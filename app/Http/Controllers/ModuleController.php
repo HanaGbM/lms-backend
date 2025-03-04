@@ -18,8 +18,9 @@ class ModuleController extends Controller
     {
         return Module::when($request->has('search'), function ($query) use ($request) {
             $query->where('title', 'like', "%{$request->search}%");
-        })->where('created_by', auth()->id())
-            ->latest()->paginate($request->per_page ?? 10);
+        })->whereHas('teachers', function ($query) {
+            $query->where('teacher_id', Auth::id());
+        })->latest()->paginate($request->per_page ?? 10);
     }
 
     /**
@@ -34,7 +35,6 @@ class ModuleController extends Controller
                 'title' => $request->title,
                 'description' => $request->description,
                 'price' => $request->price,
-                'created_by' => auth()->id(),
             ]);
 
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {

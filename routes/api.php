@@ -3,7 +3,7 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminModuleController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CourseController;
+use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\GradeReportController;
 use App\Http\Controllers\ModuleController;
@@ -71,6 +71,7 @@ Route::group([
         Route::post('create-reply/{discussion}', [ReplyController::class, 'store']);
         Route::patch('update-reply/{reply}', [ReplyController::class, 'update']);
         Route::delete('delete-reply/{reply}', [ReplyController::class, 'destroy']);
+
         /**
          * Admin Endpoints */
         Route::group(['middleware' => 'role:Admin',], function () {
@@ -96,7 +97,7 @@ Route::group([
          * Teachers Endpoints */
         Route::group(['middleware' => 'role:Teacher'], function () {
             Route::resource('my-modules', ModuleController::class);
-            Route::resource('courses', CourseController::class);
+            Route::resource('chapters', ChapterController::class);
 
             Route::resource('questions', QuestionController::class);
 
@@ -108,13 +109,21 @@ Route::group([
         });
     });
 
+
+    /**
+     * Teachers Endpoints */
+    Route::group(['middleware' => 'role:Teacher|Admin'], function () {
+        Route::resource('chapters', ChapterController::class);
+    });
+
+
     /**
      * Students Endpoints */
     Route::group(['middleware' => 'role:Student'], function () {
-        Route::get('get-modules', [StudentController::class, 'modules']);
+        Route::get('get-courses', [StudentController::class, 'courses']);
         Route::post('enroll-module/{module}', [StudentModuleController::class, 'store']);
 
-        Route::get('my-modules', [StudentController::class, 'myModules']);
+        Route::get('my-courses', [StudentController::class, 'myCourses']);
         Route::get('module-courses/{studentModule}', [StudentModuleController::class, 'moduleCourses']);
         Route::get('module-tests/{studentModule}', [StudentModuleController::class, 'moduleTests']);
         Route::get('module-assignments/{studentModule}', [StudentModuleController::class, 'moduleAssignments']);

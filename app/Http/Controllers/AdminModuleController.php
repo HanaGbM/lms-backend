@@ -33,7 +33,6 @@ class AdminModuleController extends Controller
             $module = Module::create([
                 'title' => $request->title,
                 'description' => $request->description,
-                'created_by' => auth()->id(),
                 'price' => $request->price,
             ]);
 
@@ -77,7 +76,7 @@ class AdminModuleController extends Controller
 
         $module = Module::findOrFail($id);
 
-        foreach ($request->teacher_ids as $key => $value) {
+        foreach ($request->teacher_ids as  $value) {
             ModuleTeacher::updateOrCreate([
                 'module_id' => $module->id,
                 'teacher_id' => $value,
