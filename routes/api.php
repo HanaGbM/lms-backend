@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminModuleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChapterController;
+use App\Http\Controllers\ChapterMaterialController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\GradeReportController;
 use App\Http\Controllers\ModuleController;
@@ -97,7 +98,6 @@ Route::group([
          * Teachers Endpoints */
         Route::group(['middleware' => 'role:Teacher'], function () {
             Route::resource('my-modules', ModuleController::class);
-            Route::resource('chapters', ChapterController::class);
 
             Route::resource('questions', QuestionController::class);
 
@@ -114,6 +114,8 @@ Route::group([
      * Teachers Endpoints */
     Route::group(['middleware' => 'role:Teacher|Admin'], function () {
         Route::resource('chapters', ChapterController::class);
+        Route::resource('chapter-materials', ChapterMaterialController::class);
+        Route::delete('delete-file/{id}', [ChapterMaterialController::class, 'deleteFile']);
     });
 
 

@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\LogOptions;
@@ -16,12 +14,14 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Chapter extends Model implements HasMedia
+
+class ChapterMaterial extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\ChapterFactory> */
+    /** @use HasFactory<\Database\Factories\ChapterMaterialFactory> */
     use HasFactory, HasUuids, LogsActivity, SoftDeletes, InteractsWithMedia;
 
     protected $guarded = [];
+    protected $appends = ['files'];
 
     protected $with = [];
     protected $casts = [
@@ -35,28 +35,31 @@ class Chapter extends Model implements HasMedia
         'deleted_at',
     ];
 
-    public function module(): BelongsTo
+    public function getFilesAttribute()
     {
-        return $this->belongsTo(Module::class);
+        return  $this->getMedia('file')->map(function ($file) {
+            return [
+                'id' => $file->uuid,
+                'name' => $file->file_name,
+                'url' => $file->getUrl(),
+                'size' => $file->size,
+                'mime_type' => $file->mime_type,
+            ];
+        });
     }
 
-    /**
-     * Get all of the materials for the Chapter
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function materials(): HasMany
+    public function chapter(): BelongsTo
     {
-        return $this->hasMany(ChapterMaterial::class, 'chapter_id', 'id');
+        return $this->belongsTo(Chapter::class);
     }
 
     protected static function boot()
     {
         parent::boot();
 
-        static::creating(function ($chapter) {
-            if (empty($chapter->created_by) && Auth::check()) {
-                $chapter->created_by = Auth::id();
+        static::creating(function ($chapterMaterial) {
+            if (empty($chapterMaterial->created_by) && Auth::check()) {
+                $chapterMaterial->created_by = Auth::id();
             }
         });
     }
