@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\LogOptions;
@@ -66,14 +67,9 @@ class Module extends Model implements HasMedia
         return $this->hasMany(Chapter::class, 'module_id', 'id');
     }
 
-    /**
-     * Get all of the questions for the Module
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function questions(): HasMany
+    public function questions(): MorphMany
     {
-        return $this->hasMany(Question::class, 'module_id', 'id');
+        return $this->morphMany(Question::class, 'questionable');
     }
 
     public function discussions()

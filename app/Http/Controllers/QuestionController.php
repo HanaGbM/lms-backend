@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreQuestionRequest;
 use App\Http\Requests\UpdateQuestionRequest;
+use App\Models\Chapter;
 use App\Models\Module;
 use App\Models\Question;
 use Illuminate\Http\Request;
@@ -17,23 +18,43 @@ class QuestionController extends Controller
     public function index(Request $request)
     {
         $request->validate([
-            'module_id' => 'required|exists:modules,id',
+            'model_type' => 'required|in:module,chapter',
+            'module_id' => 'required_if:category,module|exists:modules,id',
+            'chapter_id' => 'required_if:category,chapter|exists:chapters,id',
         ]);
 
-        $module = Module::find($request->module_id);
-
-        $questions = $module->questions()->where('category', 'Test')->when($request->has('search'), function ($query) use ($request) {
-            $query->where('name', 'like', "%{$request->search}%");
-        })->get()->groupBy('question_type');
+        if ($request->model_type === 'module') {
+            $module = Module::find($request->module_id);
+            $questions = $module->questions()->where('category', 'Test')->when($request->has('search'), function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%");
+            })->get()->groupBy('question_type');
+        } elseif ($request->model_type === 'chapter') {
+            $chapter = Chapter::find($request->chapter_id);
+            $questions = $chapter->questions()->where('category', 'Test')->when($request->has('search'), function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%");
+            })->get()->groupBy('question_type');
+        } else {
+            $questions = [];
+        }
 
         return response()->json($questions);
     }
 
     public function assignments(Request $request, Module $module)
     {
-        $assignments = $module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
-            $query->where('name', 'like', "%{$request->search}%");
-        })->get()->groupBy('question_type');
+        if ($request->model_type === 'module') {
+            $module = Module::find($request->module_id);
+            $assignments = $module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%");
+            })->get()->groupBy('question_type');
+        } elseif ($request->model_type === 'chapter') {
+            $chapter = Chapter::find($request->chapter_id);
+            $assignments = $chapter->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%");
+            })->get()->groupBy('question_type');
+        } else {
+            $assignments = [];
+        }
         return response()->json($assignments);
     }
 
@@ -47,8 +68,17 @@ class QuestionController extends Controller
 
             DB::beginTransaction();
 
+            if ($request->model_type === 'module') {
+                $modelType = Module::class;
+                $modelId = $request->module_id;
+            } else {
+                $modelType = Chapter::class;
+                $modelId = $request->chapter_id;
+            }
+
             $question = Question::create([
-                'module_id' => $request->module_id,
+                'questionable_type' => $modelType,
+                'questionable_id' => $modelId,
                 'name' => $request->name,
                 'description' => $request->description,
                 'category' => $request->category,

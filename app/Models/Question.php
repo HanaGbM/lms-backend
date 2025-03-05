@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
@@ -28,6 +29,8 @@ class Question extends Model implements HasMedia
     ];
     protected $hidden = [
         'media',
+        'questionable_type',
+        'questionable_id',
         'status',
         'updated_at',
         'deleted_at',
@@ -63,6 +66,18 @@ class Question extends Model implements HasMedia
     {
         return $this->hasMany(QuestionResponse::class, 'question_id', 'id');
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($chapter) {
+            if (empty($chapter->created_by) && Auth::check()) {
+                $chapter->created_by = Auth::id();
+            }
+        });
+    }
+
 
     public function getActivitylogOptions(): LogOptions
     {
