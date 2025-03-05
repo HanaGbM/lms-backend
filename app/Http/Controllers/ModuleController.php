@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreModuleRequest;
 use App\Http\Requests\UpdateModuleRequest;
 use App\Models\Module;
+use App\Models\ModuleTeacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,11 @@ class ModuleController extends Controller
                 'title' => $request->title,
                 'description' => $request->description,
                 'price' => $request->price,
+            ]);
+
+            ModuleTeacher::updateOrCreate([
+                'module_id' => $module->id,
+                'teacher_id' => Auth::id(),
             ]);
 
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
