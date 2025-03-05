@@ -42,19 +42,10 @@ class QuestionController extends Controller
 
     public function assignments(Request $request, Module $module)
     {
-        if ($request->model_type === 'module') {
-            $module = Module::find($request->module_id);
-            $assignments = $module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->search}%");
-            })->get()->groupBy('question_type');
-        } elseif ($request->model_type === 'chapter') {
-            $chapter = Chapter::find($request->chapter_id);
-            $assignments = $chapter->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->search}%");
-            })->get()->groupBy('question_type');
-        } else {
-            $assignments = [];
-        }
+        $assignments = $module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%");
+        })->get()->groupBy('question_type');
+
         return response()->json($assignments);
     }
 
