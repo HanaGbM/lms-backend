@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignUuid('chapter_id')->constrained('chapters')->cascadeOnDelete();
             $table->foreignUuid('created_by')->constrained('users')->cascadeOnDelete();
             $table->string('name');
+            $table->string('link')->nullable();
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->unsignedInteger('status')->default(1);

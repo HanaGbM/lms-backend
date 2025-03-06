@@ -9,6 +9,7 @@ use App\Models\Module;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class QuestionController extends Controller
 {
@@ -17,6 +18,7 @@ class QuestionController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('viewAny', Question::class);
         $request->validate([
             'model_type' => 'required|in:module,chapter',
             'module_id' => 'required_if:category,module|exists:modules,id',
@@ -40,12 +42,29 @@ class QuestionController extends Controller
         return response()->json($questions);
     }
 
-    public function assignments(Request $request, Module $module)
+    public function assignments(Request $request)
     {
-        $assignments = $module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
-            $query->where('name', 'like', "%{$request->search}%");
-        })->get()->groupBy('question_type');
+        Gate::authorize('viewAny', Question::class);
 
+        $request->validate([
+            'model_type' => 'required|in:module,chapter',
+            'module_id' => 'required_if:category,module|exists:modules,id',
+            'chapter_id' => 'required_if:category,chapter|exists:chapters,id',
+        ]);
+
+        if ($request->model_type === 'module') {
+            $module = Module::find($request->module_id);
+            $assignments = $module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%");
+            })->get()->groupBy('question_type');
+        } elseif ($request->model_type === 'chapter') {
+            $chapter = Chapter::find($request->chapter_id);
+            $assignments = $chapter->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%");
+            })->get()->groupBy('question_type');
+        } else {
+            $assignments = [];
+        }
         return response()->json($assignments);
     }
 
@@ -55,6 +74,8 @@ class QuestionController extends Controller
      */
     public function store(StoreQuestionRequest $request)
     {
+        Gate::authorize('create', Question::class);
+
         try {
 
             DB::beginTransaction();
@@ -105,6 +126,7 @@ class QuestionController extends Controller
      */
     public function show(Question $question)
     {
+        Gate::authorize('view', $question);
         return $question;
     }
 
@@ -114,6 +136,7 @@ class QuestionController extends Controller
      */
     public function update(UpdateQuestionRequest $request, Question $question)
     {
+        Gate::authorize('update', $question);
         try {
             DB::beginTransaction();
 
@@ -140,6 +163,14 @@ class QuestionController extends Controller
      */
     public function destroy(Question $question)
     {
-        abort(501, 'Not Implemented');
+        Gate::authorize('delete', $question);
+        try {
+            $question->delete();
+            return response()->json([
+                'message' => 'Question deleted successfully',
+            ]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }

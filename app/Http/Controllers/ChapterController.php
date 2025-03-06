@@ -8,6 +8,8 @@ use App\Models\Chapter;
 use App\Models\Module;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class ChapterController extends Controller
 {
@@ -16,6 +18,8 @@ class ChapterController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('viewAny', Chapter::class);
+
         $request->validate([
             'module_id' => 'required|exists:modules,id',
         ]);
@@ -24,7 +28,66 @@ class ChapterController extends Controller
 
         return $module->chapters()->when($request->has('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%");
-        })->latest()->paginate($request->per_page ?? 10);
+        })->orderBy('order')
+            ->paginate($request->per_page ?? 10);
+    }
+
+    public function all(Request $request)
+    {
+        Gate::authorize('viewAny', Chapter::class);
+
+        $request->validate([
+            'module_id' => 'required|exists:modules,id',
+        ]);
+
+        $module = Module::find($request->module_id);
+
+        return $module->chapters()->when($request->has('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%");
+        })->orderBy('order')
+            ->get()->map(function ($chapter) {
+                return [
+                    'id' => $chapter->id,
+                    'name' => $chapter->name,
+                    'order' => $chapter->order,
+                ];
+            });
+    }
+
+
+    public function sortChapters(Request $request)
+    {
+        Gate::authorize('sortChapters', Chapter::class);
+
+        $chapterCount = Chapter::whereModuleId($request->module_id)->count();
+
+
+        $request->validate([
+            'module_id' => 'required|exists:modules,id',
+            'chapters' => 'required|array|size:' . $chapterCount,
+            'chapters.*' => [
+                'required',
+                Rule::exists('chapters', 'id')->where(function ($query) use ($request) {
+                    $query->where('module_id', $request->module_id);
+                }),
+            ],
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->chapters as $index => $chapterId) {
+                Chapter::where('id', $chapterId)->update([
+                    'order' => $index + 1,
+                ]);
+            }
+
+            DB::commit();
+
+            return 'Chapters sorted successfully';
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
 
@@ -33,6 +96,7 @@ class ChapterController extends Controller
      */
     public function store(StoreChapterRequest $request)
     {
+        Gate::authorize('create', Chapter::class);
         try {
             DB::beginTransaction();
 
@@ -40,6 +104,7 @@ class ChapterController extends Controller
                 'module_id' => $request->module_id,
                 'name' => $request->name,
                 'description' => $request->description,
+                'order' => Chapter::where('module_id', $request->module_id)->count() + 1,
             ]);
 
             DB::commit();
@@ -55,6 +120,7 @@ class ChapterController extends Controller
      */
     public function show(Chapter $chapter)
     {
+        Gate::authorize('view', $chapter);
         return $chapter;
     }
 
@@ -63,6 +129,7 @@ class ChapterController extends Controller
      */
     public function update(UpdateChapterRequest $request, Chapter $chapter)
     {
+        Gate::authorize('update', $chapter);
         try {
             DB::beginTransaction();
 
@@ -84,6 +151,7 @@ class ChapterController extends Controller
      */
     public function destroy(Chapter $chapter)
     {
+        Gate::authorize('delete', $chapter);
         try {
             DB::beginTransaction();
 

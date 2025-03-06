@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('module_id')->constrained('modules')->cascadeOnDelete();
             $table->foreignUuid('created_by')->constrained('users')->cascadeOnDelete();
+            $table->unsignedInteger('order');
             $table->string('name');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);

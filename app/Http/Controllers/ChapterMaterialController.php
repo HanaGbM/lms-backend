@@ -8,6 +8,7 @@ use App\Models\Chapter;
 use App\Models\ChapterMaterial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ChapterMaterialController extends Controller
@@ -17,6 +18,7 @@ class ChapterMaterialController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('viewAny', ChapterMaterial::class);
         $request->validate([
             'chapter_id' => 'required|exists:chapters,id',
         ]);
@@ -34,6 +36,7 @@ class ChapterMaterialController extends Controller
      */
     public function store(StoreChapterMaterialRequest $request)
     {
+        Gate::authorize('create', ChapterMaterial::class);
         try {
             DB::beginTransaction();
 
@@ -61,6 +64,7 @@ class ChapterMaterialController extends Controller
      */
     public function show(ChapterMaterial $chapterMaterial)
     {
+        Gate::authorize('view', $chapterMaterial);
         return $chapterMaterial;
     }
 
@@ -70,6 +74,7 @@ class ChapterMaterialController extends Controller
      */
     public function update(UpdateChapterMaterialRequest $request, ChapterMaterial $chapterMaterial)
     {
+        Gate::authorize('update', $chapterMaterial);
         try {
             DB::beginTransaction();
 
@@ -96,6 +101,7 @@ class ChapterMaterialController extends Controller
      */
     public function destroy(ChapterMaterial $chapterMaterial)
     {
+        Gate::authorize('delete', $chapterMaterial);
         try {
             DB::beginTransaction();
 
@@ -111,6 +117,7 @@ class ChapterMaterialController extends Controller
 
     public function deleteFile($id)
     {
+        Gate::authorize('delete_file');
         try {
             DB::beginTransaction();
 

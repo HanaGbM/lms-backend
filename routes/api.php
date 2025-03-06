@@ -90,7 +90,6 @@ Route::group([
 
         /**
          * Admin Endpoints */
-
         Route::resource('users', UserController::class);
 
         Route::get('get-teachers', [TeacherController::class, 'teachers']);
@@ -105,6 +104,13 @@ Route::group([
         Route::post('assign-students/{moduleTeacher}', [AdminModuleController::class, 'assignStudents']);
 
 
+        Route::resource('chapters', ChapterController::class);
+        Route::get('all-chapters', [ChapterController::class, 'all']);
+        Route::post('sort-chapters', [ChapterController::class, 'sortChapters']);
+        Route::resource('chapter-materials', ChapterMaterialController::class);
+        Route::delete('delete-file/{id}', [ChapterMaterialController::class, 'deleteFile']);
+
+
 
         /**
          * Teachers Endpoints */
@@ -112,31 +118,24 @@ Route::group([
 
         Route::resource('questions', QuestionController::class);
 
-        Route::get('assignments/{module}', [QuestionController::class, 'assignments']);
+        Route::get('assignments', [QuestionController::class, 'assignments']);
 
         Route::get('short-answer-test-responses/{module}', [QuestionResponseController::class, 'shortAnswerTestResponses']);
         Route::get('short-answer-assignment-responses/{module}', [QuestionResponseController::class, 'shortAnswerAssignmentResponses']);
         Route::post('evaluate-short-answer/{questionResponse}', [QuestionResponseController::class, 'evaluate']);
+
+
+        /**
+         * Students Endpoints */
+        Route::get('get-courses', [StudentController::class, 'courses']);
+        Route::post('enroll-module/{module}', [StudentModuleController::class, 'store']);
+
+        Route::get('my-courses', [StudentController::class, 'myCourses']);
+        Route::get('module-courses/{studentModule}', [StudentModuleController::class, 'moduleCourses']);
+        Route::get('module-tests/{studentModule}', [StudentModuleController::class, 'moduleTests']);
+        Route::get('module-assignments/{studentModule}', [StudentModuleController::class, 'moduleAssignments']);
+
+        Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
+        Route::get('grade-report/{studentModule}', [GradeReportController::class, 'myGrade']);
     });
-
-
-    /**
-     * Teachers & Admin Endpoints */
-    Route::resource('chapters', ChapterController::class);
-    Route::resource('chapter-materials', ChapterMaterialController::class);
-    Route::delete('delete-file/{id}', [ChapterMaterialController::class, 'deleteFile']);
-
-
-    /**
-     * Students Endpoints */
-    Route::get('get-courses', [StudentController::class, 'courses']);
-    Route::post('enroll-module/{module}', [StudentModuleController::class, 'store']);
-
-    Route::get('my-courses', [StudentController::class, 'myCourses']);
-    Route::get('module-courses/{studentModule}', [StudentModuleController::class, 'moduleCourses']);
-    Route::get('module-tests/{studentModule}', [StudentModuleController::class, 'moduleTests']);
-    Route::get('module-assignments/{studentModule}', [StudentModuleController::class, 'moduleAssignments']);
-
-    Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
-    Route::get('grade-report/{studentModule}', [GradeReportController::class, 'myGrade']);
 });

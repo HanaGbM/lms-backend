@@ -65,7 +65,7 @@ class ModulePolicy
     {
         return $user->hasPermissionTo('read_module')
             ? Response::allow()
-            : Response::deny('You do not have permission to read module');
+            : Response::deny('You do not have permission to restore module');
     }
 
     /**

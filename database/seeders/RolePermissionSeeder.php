@@ -54,6 +54,8 @@ class RolePermissionSeeder extends Seeder
             $adminPermissions[] = "{$prefix}reply";
             $adminPermissions[] = "{$prefix}user";
             $adminPermissions[] = "{$prefix}module";
+            $teacherPermissions[] = "{$prefix}chapter";
+            $teacherPermissions[] = "{$prefix}chapter_material";
         }
         $adminPermissions[] = "read_teacher";
         $adminPermissions[] = "read_student";
@@ -63,5 +65,21 @@ class RolePermissionSeeder extends Seeder
         $adminPermissions[] = "assign_students_module";
 
         $admin->givePermissionTo($adminPermissions);
+
+
+        /**
+         *Admin */
+        $teacher = Role::where('name', 'Teacher')->first();
+        $teacherPermissions = [];
+        foreach ($permissionPrefixes as $prefix) {
+            $teacherPermissions[] = "{$prefix}module";
+            $teacherPermissions[] = "{$prefix}chapter";
+            $teacherPermissions[] = "{$prefix}chapter_material";
+            $teacherPermissions[] = "{$prefix}question";
+        }
+        $teacherPermissions[] = "sort_chapters";
+        $teacherPermissions[] = "delete_file";
+
+        $teacher->givePermissionTo($teacherPermissions);
     }
 }

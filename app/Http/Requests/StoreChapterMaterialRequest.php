@@ -25,7 +25,7 @@ class StoreChapterMaterialRequest extends FormRequest
             'chapter_id' => 'required|exists:chapters,id',
             'name' => 'required|string|unique:chapter_materials,name,NULL,id,chapter_id,' . $this->chapter_id,
             'description' => 'required|string',
-            'file' => 'required|file',
+            'file' => 'nullable|file',
         ];
     }
 }
