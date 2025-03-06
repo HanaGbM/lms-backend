@@ -80,6 +80,8 @@ class RolePermissionSeeder extends Seeder
         }
         $teacherPermissions[] = "sort_chapters";
         $teacherPermissions[] = "delete_file";
+        $teacherPermissions[] = "read_question_response";
+        $teacherPermissions[] = "evaluate_question_response";
 
         $teacher->givePermissionTo($teacherPermissions);
     }

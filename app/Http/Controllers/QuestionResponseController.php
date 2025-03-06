@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class QuestionResponseController extends StudentModuleController
 {
@@ -42,8 +43,9 @@ class QuestionResponseController extends StudentModuleController
 
     public function shortAnswerTestResponses(Request $request, Module $module)
     {
+        Gate::authorize('read_question_response');
         return QuestionResponse::whereHas('question', function ($query) use ($module) {
-            $query->where('module_id', $module->id)->where('question_type', 'short');
+            $query->where('questionable_id', $module->id)->where('question_type', 'short');
         })->with('question')->latest()->paginate($request->per_page ?? 10)->through(function ($response) {
             return [
                 'id' => $response->id,
@@ -56,9 +58,26 @@ class QuestionResponseController extends StudentModuleController
         })->groupBy('category');
     }
 
+    public function shortAnswerAssignmentResponses(Request $request, Module $module)
+    {
+        Gate::authorize('read_question_response');
+        return QuestionResponse::whereHas('question', function ($query) use ($module) {
+            $query->where('questionable_id', $module->id)->where('question_type', 'short');
+        })->with('question')->latest()->paginate($request->per_page ?? 10)->through(function ($response) {
+            return [
+                'id' => $response->id,
+                'student' => $response->user->name,
+                'category' => $response->question->category,
+                'question' => $response->question->title,
+                'answer' => $response->other_answer,
+                'score' => $response->score,
+            ];
+        })->groupBy('category');
+    }
 
     public function evaluate(Request $request, QuestionResponse $questionResponse)
     {
+        Gate::authorize('evaluate_question_response');
         $request->validate([
             'score' => 'required|numeric',
         ]);

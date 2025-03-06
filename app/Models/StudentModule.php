@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class StudentModule extends Model
 {
@@ -52,9 +53,9 @@ class StudentModule extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function module(): BelongsTo
+    public function moduleTeacher(): BelongsTo
     {
-        return $this->belongsTo(Module::class, 'module_id', 'id');
+        return $this->belongsTo(ModuleTeacher::class, 'module_teacher_id', 'id');
     }
 
     /**
@@ -65,5 +66,16 @@ class StudentModule extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_id', 'id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($studentModule) {
+            if (empty($studentModule->created_by) && Auth::check()) {
+                $studentModule->created_by = Auth::id();
+            }
+        });
     }
 }

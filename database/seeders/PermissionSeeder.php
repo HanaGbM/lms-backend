@@ -31,6 +31,7 @@ class PermissionSeeder extends Seeder
             Permission::updateOrCreate(['name' => 'delete_' . $modelName]);
         }
 
+        Permission::updateOrCreate(['name' => 'view_pulse']);
 
         Permission::updateOrCreate(['name' => 'assign_role']);
         Permission::updateOrCreate(['name' => 'attach_permission']);
@@ -48,7 +49,9 @@ class PermissionSeeder extends Seeder
 
         Permission::updateOrCreate(['name' => 'sort_chapters']);
         Permission::updateOrCreate(['name' => 'delete_file']);
-        Permission::updateOrCreate(['name' => 'view_pulse']);
+
+        Permission::updateOrCreate(['name' => 'read_question_response']);
+        Permission::updateOrCreate(['name' => 'evaluate_question_response']);
     }
 
     private  function camelCaseToSnakeCase($input)

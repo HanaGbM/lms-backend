@@ -84,7 +84,7 @@ class Module extends Model implements HasMedia
      */
     public function students(): HasMany
     {
-        return $this->hasMany(StudentModule::class, 'module_id', 'id');
+        return $this->hasMany(StudentModule::class, 'module_teacher_id', 'id');
     }
 
     public function teachers()

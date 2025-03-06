@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStudentModuleRequest;
 use App\Models\Module;
+use App\Models\ModuleTeacher;
 use App\Models\StudentModule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -72,17 +73,18 @@ class StudentModuleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreStudentModuleRequest $request, Module $module)
+    public function store(StoreStudentModuleRequest $request, ModuleTeacher $moduleTeacher)
     {
         try {
             DB::beginTransaction();
 
-            if ($module->students()->where('student_id', auth()->id())->exists()) {
+            if ($moduleTeacher->students()->where('student_id', auth()->id())->exists()) {
                 return response()->json(['message' => 'Module already enrolled.'], 400);
             }
 
-            $module->students()->create([
+            $moduleTeacher->students()->create([
                 'student_id' => auth()->id(),
+
             ]);
 
             DB::commit();

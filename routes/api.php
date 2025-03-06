@@ -127,10 +127,10 @@ Route::group([
 
         /**
          * Students Endpoints */
-        Route::get('get-courses', [StudentController::class, 'courses']);
-        Route::post('enroll-module/{module}', [StudentModuleController::class, 'store']);
+        Route::get('get-modules', [StudentController::class, 'modules']);
+        Route::post('enroll-module/{moduleTeacher}', [StudentModuleController::class, 'store']);
 
-        Route::get('my-courses', [StudentController::class, 'myCourses']);
+        Route::get('my-enrolled-modules', [StudentController::class, 'myModules']);
         Route::get('module-courses/{studentModule}', [StudentModuleController::class, 'moduleCourses']);
         Route::get('module-tests/{studentModule}', [StudentModuleController::class, 'moduleTests']);
         Route::get('module-assignments/{studentModule}', [StudentModuleController::class, 'moduleAssignments']);
