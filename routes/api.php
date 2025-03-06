@@ -10,11 +10,13 @@ use App\Http\Controllers\GradeReportController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OTPController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuestionResponseController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentModuleController;
 use App\Http\Controllers\TeacherController;
@@ -73,64 +75,68 @@ Route::group([
         Route::patch('update-reply/{reply}', [ReplyController::class, 'update']);
         Route::delete('delete-reply/{reply}', [ReplyController::class, 'destroy']);
 
+
+        /**
+         * Super Admin Endpoints */
+        Route::resource('roles', RoleController::class);
+        Route::get('permissions', [PermissionController::class, 'index']);
+
+
+        Route::post('roles/{role}/attach-permissions', [RolePermissionController::class, 'attachPermission']);
+        Route::post('roles/{role}/detach-permissions', [RolePermissionController::class, 'detachPermission']);
+        Route::post('assign-role/{user}', [RoleController::class, 'assignRole']);
+
+        Route::get('get-activity-logs', [ActivityLogController::class, 'index']);
+
         /**
          * Admin Endpoints */
-        Route::group(['middleware' => 'role:Admin',], function () {
-            Route::get('get-activity-logs', [ActivityLogController::class, 'index']);
 
-            Route::resource('users', UserController::class);
-            Route::resource('roles', RoleController::class);
+        Route::resource('users', UserController::class);
 
-            Route::get('get-teachers', [TeacherController::class, 'teachers']);
-            Route::resource('modules', AdminModuleController::class);
+        Route::get('get-teachers', [TeacherController::class, 'teachers']);
+        Route::resource('modules', AdminModuleController::class);
 
-            Route::post('assign-teachers/{module}', [AdminModuleController::class, 'assignTeachers']);
+        Route::post('assign-teachers/{module}', [AdminModuleController::class, 'assignTeachers']);
 
-            Route::get('get-students', [StudentController::class, 'students']);
+        Route::get('get-students', [StudentController::class, 'students']);
 
-            Route::get('get-module-teachers/{module}', [AdminModuleController::class, 'getModuleTeachers']);
-            Route::get('get-module-students/{id}', [AdminModuleController::class, 'getModuleStudents']);
-            Route::post('assign-students/{id}', [AdminModuleController::class, 'assignStudents']);
-        });
+        Route::get('get-module-teachers/{module}', [AdminModuleController::class, 'getModuleTeachers']);
+        Route::get('get-module-students/{id}', [AdminModuleController::class, 'getModuleStudents']);
+        Route::post('assign-students/{id}', [AdminModuleController::class, 'assignStudents']);
+
 
 
         /**
          * Teachers Endpoints */
-        Route::group(['middleware' => 'role:Teacher'], function () {
-            Route::resource('my-modules', ModuleController::class);
+        Route::resource('my-modules', ModuleController::class);
 
-            Route::resource('questions', QuestionController::class);
+        Route::resource('questions', QuestionController::class);
 
-            Route::get('assignments/{module}', [QuestionController::class, 'assignments']);
+        Route::get('assignments/{module}', [QuestionController::class, 'assignments']);
 
-            Route::get('short-answer-test-responses/{module}', [QuestionResponseController::class, 'shortAnswerTestResponses']);
-            Route::get('short-answer-assignment-responses/{module}', [QuestionResponseController::class, 'shortAnswerAssignmentResponses']);
-            Route::post('evaluate-short-answer/{questionResponse}', [QuestionResponseController::class, 'evaluate']);
-        });
+        Route::get('short-answer-test-responses/{module}', [QuestionResponseController::class, 'shortAnswerTestResponses']);
+        Route::get('short-answer-assignment-responses/{module}', [QuestionResponseController::class, 'shortAnswerAssignmentResponses']);
+        Route::post('evaluate-short-answer/{questionResponse}', [QuestionResponseController::class, 'evaluate']);
     });
 
 
     /**
-     * Teachers Endpoints */
-    Route::group(['middleware' => 'role:Teacher|Admin'], function () {
-        Route::resource('chapters', ChapterController::class);
-        Route::resource('chapter-materials', ChapterMaterialController::class);
-        Route::delete('delete-file/{id}', [ChapterMaterialController::class, 'deleteFile']);
-    });
+     * Teachers & Admin Endpoints */
+    Route::resource('chapters', ChapterController::class);
+    Route::resource('chapter-materials', ChapterMaterialController::class);
+    Route::delete('delete-file/{id}', [ChapterMaterialController::class, 'deleteFile']);
 
 
     /**
      * Students Endpoints */
-    Route::group(['middleware' => 'role:Student'], function () {
-        Route::get('get-courses', [StudentController::class, 'courses']);
-        Route::post('enroll-module/{module}', [StudentModuleController::class, 'store']);
+    Route::get('get-courses', [StudentController::class, 'courses']);
+    Route::post('enroll-module/{module}', [StudentModuleController::class, 'store']);
 
-        Route::get('my-courses', [StudentController::class, 'myCourses']);
-        Route::get('module-courses/{studentModule}', [StudentModuleController::class, 'moduleCourses']);
-        Route::get('module-tests/{studentModule}', [StudentModuleController::class, 'moduleTests']);
-        Route::get('module-assignments/{studentModule}', [StudentModuleController::class, 'moduleAssignments']);
+    Route::get('my-courses', [StudentController::class, 'myCourses']);
+    Route::get('module-courses/{studentModule}', [StudentModuleController::class, 'moduleCourses']);
+    Route::get('module-tests/{studentModule}', [StudentModuleController::class, 'moduleTests']);
+    Route::get('module-assignments/{studentModule}', [StudentModuleController::class, 'moduleAssignments']);
 
-        Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
-        Route::get('grade-report/{studentModule}', [GradeReportController::class, 'myGrade']);
-    });
+    Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
+    Route::get('grade-report/{studentModule}', [GradeReportController::class, 'myGrade']);
 });

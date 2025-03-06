@@ -29,8 +29,23 @@ class UserSeeder extends Seeder
                     $user->assignRole('Teacher');
                 }
             );
+
         $admin = User::updateOrCreate([
-            'email' => 'amandesalegnb@gmail.com',
+            'email' => 'superadmin@admin.com',
+            'phone' => '251712732919',
+            'username' => 'superadmin',
+        ], [
+            'name' => 'Super Admin',
+            'email_verified_at' => now(),
+            'bod' => now()->subYears(40),
+            'password' => bcrypt('password')
+        ]);
+
+        $admin->assignRole('Super_Admin');
+
+
+        $admin = User::updateOrCreate([
+            'email' => 'admin@admin.com',
             'phone' => '251963732919',
             'username' => 'admin',
         ], [
