@@ -10,7 +10,7 @@ class ActivityLogController extends Controller
 {
     public function index()
     {
-
+        Gate::authorize('read_activity_log');
         $activities = Activity::orderBy('created_at', 'desc')->paginate(10)->through(function ($query) {
             return [
                 'id' => $query->id,

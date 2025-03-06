@@ -16,7 +16,7 @@ class RolePermissionController extends Controller
             'permissions.*' => 'required|uuid|exists:permissions,uuid|distinct',
         ]);
 
-        $role->syncPermissions($request->permissions);
+        $role->givePermissionTo($request->permissions);
 
         return response()->json(['message' => 'Permissions attached successfully']);
     }

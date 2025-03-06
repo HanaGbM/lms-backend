@@ -33,11 +33,12 @@ class RolePermissionSeeder extends Seeder
         foreach ($permissionPrefixes as $prefix) {
             $permissions[] = "{$prefix}role";
             $permissions[] = "{$prefix}permission";
-            $permissions[] = "assign_role";
-            $permissions[] = "attach_permission";
-            $permissions[] = "detach_permission";
-            $permissions[] = "read_activity_log";
         }
+
+        $permissions[] = "assign_role";
+        $permissions[] = "attach_permission";
+        $permissions[] = "detach_permission";
+        $permissions[] = "read_activity_log";
 
         $superAdmin->givePermissionTo($permissions);
     }
