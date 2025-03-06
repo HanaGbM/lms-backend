@@ -7,13 +7,15 @@ use App\Models\QuestionResponse;
 use App\Models\StudentModule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class GradeReportController extends Controller
 {
     public function myGrade(StudentModule $studentModule)
     {
+        Gate::authorize('readGradeReport', QuestionResponse::class);
         $responses = QuestionResponse::whereHas('question', function ($query) use ($studentModule) {
-            $query->where('module_id', $studentModule->module_id);
+            $query->where('questionable_id', $studentModule->moduleTeacher->module_id);
         })->with(['question', 'option'])->where('user_id', Auth::id())
             ->latest()
             ->get()

@@ -13,11 +13,14 @@ class StudentController extends Controller
 {
     public function modules(Request $request)
     {
+        Gate::authorize('viewAny', Module::class);
+
         return ModuleTeacher::latest()->paginate($request->per_page ?? 10)->through(function ($moduleTeacher) {
             $module = $moduleTeacher->module;
             $module->is_enrolled = $module->students()->where('student_id', auth()->id())->exists();
             return [
                 'id' => $moduleTeacher->id,
+                'module_id' => $moduleTeacher->module_id,
                 'title' => $module->title,
                 'description' => $module->description,
                 'cover' => $module->cover,

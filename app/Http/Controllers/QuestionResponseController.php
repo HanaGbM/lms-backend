@@ -17,6 +17,9 @@ class QuestionResponseController extends StudentModuleController
 {
     public function questionResponse(StoreQuestionResponseRequest $request)
     {
+        Gate::authorize('create', QuestionResponse::class);
+
+
         $this->validation($request);
 
         DB::beginTransaction();

@@ -8,20 +8,26 @@ use App\Models\ModuleTeacher;
 use App\Models\StudentModule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class StudentModuleController extends Controller
 {
 
-    public function moduleCourses(Request $request, StudentModule $studentModule)
+    public function moduleChapters(Request $request, StudentModule $studentModule)
     {
-        return $studentModule->module->courses()->when($request->has('search'), function ($query) use ($request) {
+        Gate::authorize('read_module_chapters');
+
+        return $studentModule->moduleTeacher->module->chapters()->when($request->has('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%");
-        })->latest()->paginate($request->per_page ?? 10);
+        })->orderBy('order')->paginate($request->per_page ?? 10);
     }
 
     public function moduleTests(Request $request, StudentModule $studentModule)
     {
-        return $studentModule->module->questions()->where('category', 'Test')->when($request->has('search'), function ($query) use ($request) {
+
+        Gate::authorize('read_module_tests');
+
+        return $studentModule->moduleTeacher->module->questions()->where('category', 'Test')->when($request->has('search'), function ($query) use ($request) {
             $query->where('title', 'like', "%{$request->search}%");
         })->latest()->paginate($request->per_page ?? 10)->through(function ($question) {
             return $this->score($question);
@@ -30,7 +36,9 @@ class StudentModuleController extends Controller
 
     public function moduleAssignments(Request $request, StudentModule $studentModule)
     {
-        return $studentModule->module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
+        Gate::authorize('read_module_assignments');
+
+        return $studentModule->moduleTeacher->module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
             $query->where('title', 'like', "%{$request->search}%");
         })->latest()->paginate($request->per_page ?? 10)->through(function ($question) {
             return $this->score($question);

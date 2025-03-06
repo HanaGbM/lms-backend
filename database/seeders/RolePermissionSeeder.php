@@ -69,7 +69,7 @@ class RolePermissionSeeder extends Seeder
 
 
         /**
-         *Admin */
+         *Teacher */
         $teacher = Role::where('name', 'Teacher')->first();
         $teacherPermissions = [];
         foreach ($permissionPrefixes as $prefix) {
@@ -84,5 +84,22 @@ class RolePermissionSeeder extends Seeder
         $teacherPermissions[] = "evaluate_question_response";
 
         $teacher->givePermissionTo($teacherPermissions);
+
+
+        /**
+         *Student */
+        $student = Role::where('name', 'Student')->first();
+        $studentPermissions = [];
+        foreach ($permissionPrefixes as $prefix) {
+            // $studentPermissions[] = "{$prefix}module";
+        }
+        $studentPermissions[] = "read_module";
+        $studentPermissions[] = "read_module_tests";
+        $studentPermissions[] = "read_module_assignments";
+        $studentPermissions[] = "read_module_chapters";
+        $studentPermissions[] = "create_question_response";
+        $studentPermissions[] = "read_grade_report";
+
+        $student->givePermissionTo($studentPermissions);
     }
 }
