@@ -94,7 +94,7 @@ Route::group([
         Route::resource('users', UserController::class);
 
         Route::get('get-teachers', [TeacherController::class, 'teachers']);
-        Route::resource('modules', AdminModuleController::class);
+        Route::resource('modules', ModuleController::class);
 
         Route::post('assign-teachers/{module}', [AdminModuleController::class, 'assignTeachers']);
 
@@ -102,13 +102,13 @@ Route::group([
 
         Route::get('get-module-teachers/{module}', [AdminModuleController::class, 'getModuleTeachers']);
         Route::get('get-module-students/{id}', [AdminModuleController::class, 'getModuleStudents']);
-        Route::post('assign-students/{id}', [AdminModuleController::class, 'assignStudents']);
+        Route::post('assign-students/{moduleTeacher}', [AdminModuleController::class, 'assignStudents']);
 
 
 
         /**
          * Teachers Endpoints */
-        // Route::resource('my-modules', ModuleController::class);
+        Route::get('my-modules', [ModuleController::class, 'myModules']);
 
         Route::resource('questions', QuestionController::class);
 

@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Models\StudentModule;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class StudentController extends Controller
 {
@@ -58,6 +59,7 @@ class StudentController extends Controller
 
     public function students(Request $request)
     {
+        Gate::authorize('viewAnyStudents', User::class);
         $request->validate([
             'per_page' => 'nullable|integer',
             'search' => 'nullable|string',

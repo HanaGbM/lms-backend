@@ -9,13 +9,25 @@ use App\Models\ModuleTeacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class ModuleController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
+    {
+
+        Gate::authorize('viewAny', Module::class);
+        return Module::when($request->has('search'), function ($query) use ($request) {
+            $query->where('title', 'like', "%{$request->search}%");
+        })->latest()->paginate($request->per_page ?? 10);
+    }
+
+
+    public function myModules(Request $request)
     {
         return Module::when($request->has('search'), function ($query) use ($request) {
             $query->where('title', 'like', "%{$request->search}%");
@@ -29,6 +41,7 @@ class ModuleController extends Controller
      */
     public function store(StoreModuleRequest $request)
     {
+        Gate::authorize('create', Module::class);
         try {
             DB::beginTransaction();
 
@@ -36,11 +49,6 @@ class ModuleController extends Controller
                 'title' => $request->title,
                 'description' => $request->description,
                 'price' => $request->price,
-            ]);
-
-            ModuleTeacher::updateOrCreate([
-                'module_id' => $module->id,
-                'teacher_id' => Auth::id(),
             ]);
 
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
@@ -59,20 +67,28 @@ class ModuleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(Module $module)
     {
-        $module = Module::findOrFail($id);
+        Gate::authorize('view', $module);
+
+        $teacherModules = $module->teacherModules->map(function ($teacherModule) {
+            $paginatedStudents = $teacherModule->students()->paginate(10);
+            $teacherModule->setRelation('students', $paginatedStudents);
+            return $teacherModule;
+        });
+
+        $module->setRelation('teacherModules', $teacherModules);
         return $module;
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateModuleRequest $request, $id)
+    public function update(UpdateModuleRequest $request, Module $module)
     {
+        Gate::authorize('update', $module);
         try {
             DB::beginTransaction();
-            $module = Module::findOrFail($id);
 
             if ($module->created_by != Auth::id() && !Auth::user()->hasRole('Admin')) {
                 return response()->json([
@@ -103,9 +119,9 @@ class ModuleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Module $module)
     {
-        $module = Module::findOrFail($id);
+        Gate::authorize('delete', $module);
         if ($module->created_by != Auth::id() && !Auth::user()->hasRole('Admin')) {
             return response()->json([
                 'message' => 'You are not authorized to update this discussion'

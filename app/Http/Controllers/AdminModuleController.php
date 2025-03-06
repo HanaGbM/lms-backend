@@ -9,72 +9,17 @@ use App\Models\ModuleTeacher;
 use App\Models\StudentModule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class AdminModuleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    public function assignTeachers(Request $request, Module $module)
     {
-        return Module::when($request->has('search'), function ($query) use ($request) {
-            $query->where('title', 'like', "%{$request->search}%");
-        })->latest()->paginate($request->per_page ?? 10);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAdminModuleRequest $request)
-    {
-        try {
-            DB::beginTransaction();
-
-            $module = Module::create([
-                'title' => $request->title,
-                'description' => $request->description,
-                'price' => $request->price,
-            ]);
-
-            if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
-                $module->addMediaFromRequest('cover')
-                    ->toMediaCollection('cover');
-            }
-
-            DB::commit();
-
-            return response()->json(['message' => 'Module created successfully'], 201);
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
-    {
-        $module = Module::with('teacherModules.teacher')->findOrFail($id);
-
-        $teacherModules = $module->teacherModules->map(function ($teacherModule) {
-            $paginatedStudents = $teacherModule->students()->paginate(10);
-            $teacherModule->setRelation('students', $paginatedStudents);
-            return $teacherModule;
-        });
-
-        $module->setRelation('teacherModules', $teacherModules);
-
-        return $module;
-    }
-
-    public function assignTeachers(Request $request, $id)
-    {
+        Gate::authorize('assignTeachers', $module);
         $request->validate([
             'teacher_ids' => 'required|array',
             'teacher_ids.*' => 'required|exists:users,id|distinct',
         ]);
-
-        $module = Module::findOrFail($id);
 
         foreach ($request->teacher_ids as  $value) {
             ModuleTeacher::updateOrCreate([
@@ -88,15 +33,19 @@ class AdminModuleController extends Controller
 
     public function assignStudents(Request $request, $id)
     {
+        Gate::authorize('assignStudents', Module::class);
+
         $request->validate([
             'student_ids' => 'required|array',
             'student_ids.*' => 'required|exists:users,id|distinct',
         ]);
 
+        $moduleTeacher = ModuleTeacher::findOrFail($id);
+
         foreach ($request->student_ids as  $value) {
             StudentModule::updateOrCreate([
                 'student_id' => $value,
-                'module_teacher_id' => $id,
+                'module_teacher_id' => $moduleTeacher->id,
                 'created_by' => auth()->id(),
             ]);
         }
@@ -106,6 +55,7 @@ class AdminModuleController extends Controller
 
     public function getModuleTeachers(Request $request, $id)
     {
+        Gate::authorize('viewModuleTeachers', Module::class);
         return ModuleTeacher::where('module_id', $id)
             ->paginate(10)->through(function ($moduleTeacher) {
                 return [
@@ -124,6 +74,8 @@ class AdminModuleController extends Controller
 
     public function getModuleStudents(Request $request, $id)
     {
+        Gate::authorize('viewModuleStudents', Module::class);
+
         return ModuleTeacher::findOrFail($id)
             ->students()
             ->paginate(10);

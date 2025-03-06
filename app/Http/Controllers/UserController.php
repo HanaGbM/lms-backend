@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -16,7 +17,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-
+        Gate::authorize('viewAny', User::class);
         $request->validate([
             'per_page' => 'nullable|integer',
             'search' => 'nullable|string',
@@ -39,6 +40,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
+        Gate::authorize('create', User::class);
         try {
             DB::beginTransaction();
 
@@ -66,6 +68,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        Gate::authorize('view', $user);
         return $user->load('roles');
     }
 
@@ -74,6 +77,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        Gate::authorize('update', $user);
         try {
             DB::beginTransaction();
 
@@ -100,6 +104,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        Gate::authorize('delete', $user);
         $user->delete();
 
         return response()->json(['message' => 'User deleted successfully'], 200);

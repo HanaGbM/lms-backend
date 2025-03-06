@@ -52,7 +52,15 @@ class RolePermissionSeeder extends Seeder
         foreach ($permissionPrefixes as $prefix) {
             $adminPermissions[] = "{$prefix}discussion";
             $adminPermissions[] = "{$prefix}reply";
+            $adminPermissions[] = "{$prefix}user";
+            $adminPermissions[] = "{$prefix}module";
         }
+        $adminPermissions[] = "read_teacher";
+        $adminPermissions[] = "read_student";
+        $adminPermissions[] = "assign_teachers_module";
+        $adminPermissions[] = "read_module_teachers";
+        $adminPermissions[] = "read_module_students";
+        $adminPermissions[] = "assign_students_module";
 
         $admin->givePermissionTo($adminPermissions);
     }

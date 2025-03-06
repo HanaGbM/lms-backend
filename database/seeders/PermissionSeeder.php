@@ -37,6 +37,13 @@ class PermissionSeeder extends Seeder
         Permission::updateOrCreate(['name' => 'detach_permission']);
 
         Permission::updateOrCreate(['name' => 'read_activity_log']);
+
+        Permission::updateOrCreate(['name' => 'read_teacher']);
+        Permission::updateOrCreate(['name' => 'read_student']);
+        Permission::updateOrCreate(['name' => 'assign_teachers_module']);
+        Permission::updateOrCreate(['name' => 'read_module_teachers']);
+        Permission::updateOrCreate(['name' => 'read_module_students']);
+        Permission::updateOrCreate(['name' => 'assign_students_module']);
     }
 
     private  function camelCaseToSnakeCase($input)

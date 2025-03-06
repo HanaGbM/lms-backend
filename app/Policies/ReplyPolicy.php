@@ -65,7 +65,7 @@ class ReplyPolicy
     {
         return $user->hasPermissionTo(permission: 'delete_reply')
             ? Response::allow()
-            : Response::deny('You do not have permission to restore discussion.');
+            : Response::deny('You do not have permission to restore reply.');
     }
 
     /**
@@ -75,6 +75,6 @@ class ReplyPolicy
     {
         return $user->hasPermissionTo(permission: 'delete_reply')
             ? Response::allow()
-            : Response::deny('You do not have permission to permanently delete discussion.');
+            : Response::deny('You do not have permission to permanently delete reply.');
     }
 }
