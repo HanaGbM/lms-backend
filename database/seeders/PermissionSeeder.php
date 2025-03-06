@@ -48,6 +48,7 @@ class PermissionSeeder extends Seeder
 
         Permission::updateOrCreate(['name' => 'sort_chapters']);
         Permission::updateOrCreate(['name' => 'delete_file']);
+        Permission::updateOrCreate(['name' => 'view_pulse']);
     }
 
     private  function camelCaseToSnakeCase($input)

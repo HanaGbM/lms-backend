@@ -41,6 +41,7 @@ class RolePermissionSeeder extends Seeder
         $superAdminPermissions[] = "attach_permission";
         $superAdminPermissions[] = "detach_permission";
         $superAdminPermissions[] = "read_activity_log";
+        $superAdminPermissions[] = "view_pulse";
 
         $superAdmin->givePermissionTo($superAdminPermissions);
 
