@@ -18,28 +18,42 @@ class RolePermissionSeeder extends Seeder
         ]);
 
 
-        $superAdmin = Role::where('name', 'Super_Admin')->first();
 
 
         $permissionPrefixes = [
             'read_',
-            'detail_',
             'create_',
             'update_',
             'delete_',
         ];
 
-        $permissions = [];
+
+        /**
+         *Super_Admin */
+        $superAdmin = Role::where('name', 'Super_Admin')->first();
+        $superAdminPermissions = [];
         foreach ($permissionPrefixes as $prefix) {
-            $permissions[] = "{$prefix}role";
-            $permissions[] = "{$prefix}permission";
+            $superAdminPermissions[] = "{$prefix}role";
+            $superAdminPermissions[] = "{$prefix}permission";
         }
 
-        $permissions[] = "assign_role";
-        $permissions[] = "attach_permission";
-        $permissions[] = "detach_permission";
-        $permissions[] = "read_activity_log";
+        $superAdminPermissions[] = "assign_role";
+        $superAdminPermissions[] = "attach_permission";
+        $superAdminPermissions[] = "detach_permission";
+        $superAdminPermissions[] = "read_activity_log";
 
-        $superAdmin->givePermissionTo($permissions);
+        $superAdmin->givePermissionTo($superAdminPermissions);
+
+
+        /**
+         *Admin */
+        $admin = Role::where('name', 'Admin')->first();
+        $adminPermissions = [];
+        foreach ($permissionPrefixes as $prefix) {
+            $adminPermissions[] = "{$prefix}discussion";
+            $adminPermissions[] = "{$prefix}reply";
+        }
+
+        $admin->givePermissionTo($adminPermissions);
     }
 }

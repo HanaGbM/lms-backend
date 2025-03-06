@@ -27,7 +27,6 @@ class PermissionSeeder extends Seeder
         foreach ($modelNames as $modelName) {
             Permission::updateOrCreate(['name' => 'create_' . $modelName]);
             Permission::updateOrCreate(['name' => 'read_' . $modelName]);
-            Permission::updateOrCreate(['name' => 'detail_' . $modelName]);
             Permission::updateOrCreate(['name' => 'update_' . $modelName]);
             Permission::updateOrCreate(['name' => 'delete_' . $modelName]);
         }

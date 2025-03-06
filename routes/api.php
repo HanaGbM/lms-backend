@@ -108,7 +108,7 @@ Route::group([
 
         /**
          * Teachers Endpoints */
-        Route::resource('my-modules', ModuleController::class);
+        // Route::resource('my-modules', ModuleController::class);
 
         Route::resource('questions', QuestionController::class);
 

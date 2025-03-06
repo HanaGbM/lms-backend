@@ -8,7 +8,7 @@ use App\Models\Discussion;
 use App\Models\Module;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Expr\AssignOp\Mod;
+use Illuminate\Support\Facades\Gate;
 
 class DiscussionController extends Controller
 {
@@ -17,6 +17,8 @@ class DiscussionController extends Controller
      */
     public function index(Module $module)
     {
+        Gate::authorize('viewAny', Discussion::class);
+
         return $module->discussions()->latest()->paginate(10)->through(function ($discussion) {
             $discussion->replies = $discussion->replies()->latest()->paginate(10);
             return $discussion->load('user');
@@ -28,6 +30,7 @@ class DiscussionController extends Controller
      */
     public function store(StoreDiscussionRequest $request, Module $module)
     {
+        Gate::authorize('create', Discussion::class);
         try {
 
             DB::beginTransaction();
@@ -58,6 +61,8 @@ class DiscussionController extends Controller
      */
     public function show(Discussion $discussion)
     {
+        Gate::authorize('view', $discussion);
+
         $discussion->replies = $discussion->replies()->latest()->paginate(10);
         return $discussion->load('user');
     }
@@ -67,6 +72,7 @@ class DiscussionController extends Controller
      */
     public function update(UpdateDiscussionRequest $request, Discussion $discussion)
     {
+        Gate::authorize('update', $discussion);
         try {
             DB::beginTransaction();
 
@@ -102,6 +108,7 @@ class DiscussionController extends Controller
      */
     public function destroy(Discussion $discussion)
     {
+        Gate::authorize('delete', $discussion);
         if ($discussion->user_id != Auth::id()) {
             return response()->json([
                 'message' => 'You are not authorized to update this discussion'
