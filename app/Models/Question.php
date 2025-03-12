@@ -29,8 +29,6 @@ class Question extends Model implements HasMedia
     ];
     protected $hidden = [
         'media',
-        'questionable_type',
-        'questionable_id',
         'status',
         'updated_at',
         'deleted_at',
@@ -47,10 +45,8 @@ class Question extends Model implements HasMedia
         ];
     }
 
-    public function module(): BelongsTo
-    {
-        return $this->belongsTo(Module::class);
-    }
+
+
 
     public function options(): HasMany
     {

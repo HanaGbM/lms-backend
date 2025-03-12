@@ -34,16 +34,12 @@ class Test extends Model
         'deleted_at',
     ];
 
-    public function chapters(): MorphMany
+
+    public function questions(): HasMany
     {
-        return $this->morphMany(Question::class, 'testable');
+        return $this->hasMany(Question::class, 'test_id', 'id');
     }
 
-
-    public function questions(): MorphMany
-    {
-        return $this->morphMany(Question::class, 'testable');
-    }
 
     protected static function boot()
     {
