@@ -48,13 +48,13 @@ class Module extends Model implements HasMedia
     }
 
     /**
-     * Get the createdBY that owns the Module
+     * Get the creator that owns the Module
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function createdBy(): BelongsTo
+    public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'foreign_key', 'other_key');
+        return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
 
