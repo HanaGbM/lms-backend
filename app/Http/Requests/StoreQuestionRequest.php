@@ -22,11 +22,8 @@ class StoreQuestionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'model_type' => 'required|in:module,chapter',
-            'module_id' => 'required_if:category,module|exists:modules,id',
-            'chapter_id' => 'required_if:category,chapter|exists:chapters,id',
+            'test_id' => 'required|exists:tests,id',
             'name' => 'required|string|unique:questions,name',
-            'category' => 'required|string|in:Test,Assignment',
             'score_value' => 'required|numeric',
             'question_type' => 'required|string|in:choice,short,choice_short',
             'options' => 'required_if:question_type,choice,choice_short|array',

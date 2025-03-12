@@ -5,92 +5,44 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Module extends Model implements HasMedia
+class Test extends Model
 {
     /** @use HasFactory<\Database\Factories\ModuleFactory> */
-    use HasFactory, HasUuids, LogsActivity, SoftDeletes, InteractsWithMedia;
+    use HasFactory, HasUuids, LogsActivity, SoftDeletes;
 
     protected $guarded = [];
 
-    protected $appends = ['cover'];
+    protected $appends = [];
     protected $with = [];
     protected $casts = [
         'is_active' => 'boolean',
         'price' => 'float',
     ];
     protected $hidden = [
-        'media',
         'status',
         'created_by',
+        'testable_type',
+        'testable_id',
         'updated_at',
         'deleted_at',
     ];
 
-    public function getCoverAttribute()
+    public function chapters(): MorphMany
     {
-        $lastMedia = $this->getMedia('cover')->last();
-
-        return [
-            'uuid' => $lastMedia?->uuid,
-            'url' => $lastMedia ? $this->getFirstMediaUrl('cover', '', $lastMedia) : null,
-            'mime_type' => $lastMedia?->mime_type,
-        ];
-    }
-
-    /**
-     * Get the createdBY that owns the Module
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function createdBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'foreign_key', 'other_key');
+        return $this->morphMany(Question::class, 'testable');
     }
 
 
-    public function tests(): MorphMany
+    public function questions(): MorphMany
     {
-        return $this->morphMany(Test::class, 'testable');
-    }
-
-    public function discussions()
-    {
-        return $this->morphMany(Discussion::class, 'discussable');
-    }
-
-    /**
-     * Get all of the students for the Module
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function students(): HasMany
-    {
-        return $this->hasMany(StudentModule::class, 'module_teacher_id', 'id');
-    }
-
-    public function teachers()
-    {
-        return $this->belongsToMany(User::class, 'module_teachers', 'module_id', 'teacher_id');
-    }
-
-    /**
-     * Get all of the teacherModules for the Module
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function teacherModules(): HasMany
-    {
-        return $this->hasMany(ModuleTeacher::class, 'module_id', 'id');
+        return $this->morphMany(Question::class, 'testable');
     }
 
     protected static function boot()
@@ -104,7 +56,6 @@ class Module extends Model implements HasMedia
         });
     }
 
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -114,7 +65,7 @@ class Module extends Model implements HasMedia
                 $modelName = class_basename($this);
 
                 if ($eventName === 'created') {
-                    return "{$modelName} with title '{$this->title}' has been created.";
+                    return "{$modelName} with name '{$this->name}' has been created.";
                 } elseif ($eventName === 'updated') {
                     $changes = collect($this->getChanges())
                         ->except(['updated_at'])

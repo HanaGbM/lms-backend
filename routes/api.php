@@ -20,6 +20,7 @@ use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentModuleController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -100,7 +101,7 @@ Route::group([
         Route::get('get-students', [StudentController::class, 'students']);
 
         Route::get('get-module-teachers/{module}', [AdminModuleController::class, 'getModuleTeachers']);
-        Route::get('get-module-students/{id}', [AdminModuleController::class, 'getModuleStudents']);
+        Route::get('get-module-studenxwts/{id}', [AdminModuleController::class, 'getModuleStudents']);
         Route::post('assign-students/{moduleTeacher}', [AdminModuleController::class, 'assignStudents']);
 
 
@@ -116,9 +117,9 @@ Route::group([
          * Teachers Endpoints */
         Route::get('my-modules', [ModuleController::class, 'myModules']);
 
-        Route::resource('questions', QuestionController::class);
+        Route::resource('tests', TestController::class);
 
-        Route::get('assignments', [QuestionController::class, 'assignments']);
+        Route::resource('questions', QuestionController::class);
 
         Route::get('short-answer-test-responses/{module}', [QuestionResponseController::class, 'shortAnswerTestResponses']);
         Route::get('short-answer-assignment-responses/{module}', [QuestionResponseController::class, 'shortAnswerAssignmentResponses']);

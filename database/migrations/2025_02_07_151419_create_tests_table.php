@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('questions', function (Blueprint $table) {
+        Schema::create('tests', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuidMorphs('testable');
             $table->foreignUuid('created_by')->constrained('users')->cascadeOnDelete();
-            $table->foreignUuid('test_id')->constrained('tests')->cascadeOnDelete();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->text('description')->nullable();
-            $table->enum('question_type', ['choice', 'short', 'choice_short'])->default('choice');
-            $table->string('score_value')->defaulxwt(1);
+            $table->boolean('is_active')->default(true);
+            $table->date('start_date')->nullable();
+            $table->date('due_date')->nullable();
+            $table->unsignedInteger('duration')->default(0);
+            $table->enum('duration_unit', ['minutes', 'hours'])->default('minutes');
             $table->unsignedInteger('status')->default(1);
             $table->timestamps();
             $table->softDeletes();
@@ -30,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('questions');
+        Schema::dropIfExists('tests');
     }
 };

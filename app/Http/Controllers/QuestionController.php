@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateQuestionRequest;
 use App\Models\Chapter;
 use App\Models\Module;
 use App\Models\Question;
+use App\Models\Test;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -19,53 +20,19 @@ class QuestionController extends Controller
     public function index(Request $request)
     {
         Gate::authorize('viewAny', Question::class);
-        $request->validate([
-            'model_type' => 'required|in:module,chapter',
-            'module_id' => 'required_if:category,module|exists:modules,id',
-            'chapter_id' => 'required_if:category,chapter|exists:chapters,id',
-        ]);
-
-        if ($request->model_type === 'module') {
-            $module = Module::find($request->module_id);
-            $questions = $module->questions()->where('category', 'Test')->when($request->has('search'), function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->search}%");
-            })->get()->groupBy('question_type');
-        } elseif ($request->model_type === 'chapter') {
-            $chapter = Chapter::find($request->chapter_id);
-            $questions = $chapter->questions()->where('category', 'Test')->when($request->has('search'), function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->search}%");
-            })->get()->groupBy('question_type');
-        } else {
-            $questions = [];
-        }
-
-        return response()->json($questions);
-    }
-
-    public function assignments(Request $request)
-    {
-        Gate::authorize('viewAny', Question::class);
 
         $request->validate([
-            'model_type' => 'required|in:module,chapter',
-            'module_id' => 'required_if:category,module|exists:modules,id',
-            'chapter_id' => 'required_if:category,chapter|exists:chapters,id',
+            'test_id' => 'required|exists:tests,id',
         ]);
 
-        if ($request->model_type === 'module') {
-            $module = Module::find($request->module_id);
-            $assignments = $module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->search}%");
-            })->get()->groupBy('question_type');
-        } elseif ($request->model_type === 'chapter') {
-            $chapter = Chapter::find($request->chapter_id);
-            $assignments = $chapter->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->search}%");
-            })->get()->groupBy('question_type');
-        } else {
-            $assignments = [];
-        }
-        return response()->json($assignments);
+        $test = Test::find($request->test_id);
+
+        $questions = $test->questions()->when($request->has('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%");
+        })->get()->groupBy('question_type');
+
+
+        return $questions;
     }
 
 
@@ -80,20 +47,10 @@ class QuestionController extends Controller
 
             DB::beginTransaction();
 
-            if ($request->model_type === 'module') {
-                $modelType = Module::class;
-                $modelId = $request->module_id;
-            } else {
-                $modelType = Chapter::class;
-                $modelId = $request->chapter_id;
-            }
-
             $question = Question::create([
-                'questionable_type' => $modelType,
-                'questionable_id' => $modelId,
+                'test_id' => $request->test_id,
                 'name' => $request->name,
                 'description' => $request->description,
-                'category' => $request->category,
                 'question_type' => $request->question_type ?? 'choice',
                 'score_value' => $request->score_value,
             ]);
@@ -107,7 +64,6 @@ class QuestionController extends Controller
                     ]);
                 }
             }
-
 
 
             DB::commit();
