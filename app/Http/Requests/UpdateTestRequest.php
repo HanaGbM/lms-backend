@@ -22,14 +22,11 @@ class UpdateTestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'nullable|string',
-            'description' => 'nullable|string',
-            'duration' => 'nullable|numeric',
-            'passing_score' => 'nullable|numeric',
-            'is_published' => 'nullable|boolean',
-            'questions' => 'nullable|array',
-            'questions.*.id' => 'nullable|exists:questions,id',
-            'questions.*.score_value' => 'nullable|numeric',
+            'name' => 'required|string',
+            'start_date' => 'nullable|date',
+            'due_date' => 'nullable|date|after:start_date',
+            'duration' => 'nullable|numeric|min:1',
+            'duration_unit' => 'nullable|in:minutes,hours',
         ];
     }
 }

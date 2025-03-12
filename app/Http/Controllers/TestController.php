@@ -119,7 +119,24 @@ class TestController extends Controller
      */
     public function update(UpdateTestRequest $request, Test $test)
     {
-        //
+        DB::beginTransaction();
+
+        Gate::authorize('update', $test);
+
+        $test->update([
+            'name' => $request->name,
+            'start_date' => $request->start_date,
+            'due_date' => $request->due_date,
+            'duration' => $request->duration ?? 0,
+            'duration_unit' => $request->duration_unit ?? 'minutes',
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Test updated successfully',
+            'test' => $test,
+        ]);
     }
 
     /**
