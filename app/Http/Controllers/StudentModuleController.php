@@ -6,6 +6,7 @@ use App\Http\Requests\StoreStudentModuleRequest;
 use App\Models\Module;
 use App\Models\ModuleTeacher;
 use App\Models\StudentModule;
+use App\Models\Test;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -27,22 +28,21 @@ class StudentModuleController extends Controller
 
         Gate::authorize('read_module_tests');
 
-        return $studentModule->moduleTeacher->module->questions()->where('category', 'Test')->when($request->has('search'), function ($query) use ($request) {
+        return $studentModule->moduleTeacher->module->tests()->when($request->has('search'), function ($query) use ($request) {
             $query->where('title', 'like', "%{$request->search}%");
         })->latest()->paginate($request->per_page ?? 10)->through(function ($question) {
             return $this->score($question);
-        })->groupBy('question_type');
+        });
     }
 
-    public function moduleAssignments(Request $request, StudentModule $studentModule)
+    public function testQuestions(Request $request, Test $test)
     {
-        Gate::authorize('read_module_assignments');
+        Gate::authorize('read_test_questions');
 
-        return $studentModule->moduleTeacher->module->questions()->where('category', 'Assignment')->when($request->has('search'), function ($query) use ($request) {
-            $query->where('title', 'like', "%{$request->search}%");
-        })->latest()->paginate($request->per_page ?? 10)->through(function ($question) {
-            return $this->score($question);
-        })->groupBy('question_type');
+
+        return $test->questions()->when($request->has('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%");
+        })->get()->groupBy('question_type');
     }
 
 

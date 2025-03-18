@@ -55,7 +55,7 @@ class PermissionSeeder extends Seeder
 
 
         Permission::updateOrCreate(['name' => 'read_module_tests']);
-        Permission::updateOrCreate(['name' => 'read_module_assignments']);
+        Permission::updateOrCreate(['name' => 'read_test_questions']);
         Permission::updateOrCreate(['name' => 'read_module_chapters']);
         Permission::updateOrCreate(['name' => 'read_grade_report']);
     }

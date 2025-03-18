@@ -18,7 +18,7 @@ class QuestionOption extends Model
 
     protected $hidden = [
         'status',
-        // 'is_correct',
+        'is_correct',
         'updated_at',
         'deleted_at',
     ];

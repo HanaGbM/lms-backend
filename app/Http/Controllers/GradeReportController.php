@@ -15,7 +15,9 @@ class GradeReportController extends Controller
     {
         Gate::authorize('readGradeReport', QuestionResponse::class);
         $responses = QuestionResponse::whereHas('question', function ($query) use ($studentModule) {
-            $query->where('questionable_id', $studentModule->moduleTeacher->module_id);
+            $query->whereHas('test', function ($query) use ($studentModule) {
+                $query->where('testable_id', $studentModule->moduleTeacher->module_id);
+            });
         })->with(['question', 'option'])->where('user_id', Auth::id())
             ->latest()
             ->get()

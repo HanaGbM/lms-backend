@@ -118,7 +118,6 @@ Route::group([
         Route::get('my-modules', [ModuleController::class, 'myModules']);
 
         Route::resource('tests', TestController::class);
-
         Route::resource('questions', QuestionController::class);
 
         Route::get('short-answer-test-responses/{module}', [QuestionResponseController::class, 'shortAnswerTestResponses']);
@@ -134,7 +133,8 @@ Route::group([
         Route::get('my-enrolled-modules', [StudentController::class, 'myModules']);
         Route::get('module-chapters/{studentModule}', [StudentModuleController::class, 'moduleChapters']);
         Route::get('module-tests/{studentModule}', [StudentModuleController::class, 'moduleTests']);
-        Route::get('module-assignments/{studentModule}', [StudentModuleController::class, 'moduleAssignments']);
+
+        Route::get('test-questions/{test}', [StudentModuleController::class, 'testQuestions']);
 
         Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
         Route::get('grade-report/{studentModule}', [GradeReportController::class, 'myGrade']);

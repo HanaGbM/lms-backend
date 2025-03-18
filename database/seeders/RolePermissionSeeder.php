@@ -96,10 +96,12 @@ class RolePermissionSeeder extends Seeder
         }
         $studentPermissions[] = "read_module";
         $studentPermissions[] = "read_module_tests";
-        $studentPermissions[] = "read_module_assignments";
+        $studentPermissions[] = "read_test_questions";
         $studentPermissions[] = "read_module_chapters";
         $studentPermissions[] = "create_question_response";
         $studentPermissions[] = "read_grade_report";
+        $studentPermissions[] = "read_chapter_material";
+
 
         $student->givePermissionTo($studentPermissions);
     }

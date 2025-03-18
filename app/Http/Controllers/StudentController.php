@@ -28,14 +28,6 @@ class StudentController extends Controller
                 'teacher' => $moduleTeacher->teacher->name,
             ];
         });
-
-
-        // return Module::when($request->has('search'), function ($query) use ($request) {
-        //     $query->where('title', 'like', "%{$request->search}%");
-        // })->whereHas('teachers')->paginate($request->per_page ?? 10)->through(function ($module) {
-        //     $module->is_enrolled = $module->students()->where('student_id', auth()->id())->exists();
-        //     return $module;
-        // });
     }
 
     public function myModules(Request $request)

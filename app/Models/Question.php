@@ -45,7 +45,15 @@ class Question extends Model implements HasMedia
         ];
     }
 
-
+    /**
+     * Get the test that owns the Question
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function test(): BelongsTo
+    {
+        return $this->belongsTo(Test::class, 'test_id', 'id');
+    }
 
 
     public function options(): HasMany
