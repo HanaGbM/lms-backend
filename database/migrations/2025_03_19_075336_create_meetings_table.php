@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('url')->nullable();
             $table->text('description')->nullable();
             $table->boolean('all_day')->default(false);
-            $table->timestamp('start_date');
-            $table->timestamp('end_date');
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->foreignUuid('created_by')->constrained('users')->cascadeOnDelete();
