@@ -7,6 +7,7 @@ use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\ChapterMaterialController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\GradeReportController;
+use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OTPController;
@@ -119,6 +120,11 @@ Route::group([
 
         Route::resource('tests', TestController::class);
         Route::resource('questions', QuestionController::class);
+
+
+        Route::resource('meetings', MeetingController::class);
+        Route::get('participants/{meeting}', [MeetingController::class, 'show']);
+
 
         Route::get('short-answer-test-responses/{module}', [QuestionResponseController::class, 'shortAnswerTestResponses']);
         Route::get('short-answer-assignment-responses/{module}', [QuestionResponseController::class, 'shortAnswerAssignmentResponses']);

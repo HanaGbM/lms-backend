@@ -22,5 +22,10 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void {}
+    public function boot(): void
+    {
+        // Gate::define('viewPulse', function (User $user) {
+        //     return true;
+        // });
+    }
 }

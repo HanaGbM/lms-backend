@@ -108,6 +108,18 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         ];
     }
 
+    // isAdmin
+    public function isAdmin(): bool
+    {
+        return true;
+    }
+
+    public function invites()
+    {
+        return $this->hasMany(UserInvite::class, 'user_id', 'id');
+    }
+
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
