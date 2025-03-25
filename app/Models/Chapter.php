@@ -61,6 +61,12 @@ class Chapter extends Model implements HasMedia
         });
     }
 
+    public function studentContent()
+    {
+        return $this->morphMany(StudentContent::class, 'contentable');
+    }
+
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

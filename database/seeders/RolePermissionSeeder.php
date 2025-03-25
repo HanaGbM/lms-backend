@@ -102,6 +102,7 @@ class RolePermissionSeeder extends Seeder
         $studentPermissions[] = "create_question_response";
         $studentPermissions[] = "read_grade_report";
         $studentPermissions[] = "read_chapter_material";
+        $studentPermissions[] = "enroll_module";
 
 
         $student->givePermissionTo($studentPermissions);

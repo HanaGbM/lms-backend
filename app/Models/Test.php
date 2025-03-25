@@ -23,7 +23,6 @@ class Test extends Model
     protected $with = [];
     protected $casts = [
         'is_active' => 'boolean',
-        'price' => 'float',
     ];
     protected $hidden = [
         'status',

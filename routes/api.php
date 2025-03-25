@@ -100,6 +100,7 @@ Route::group([
         Route::post('assign-teachers/{module}', [AdminModuleController::class, 'assignTeachers']);
 
         Route::get('get-students', [StudentController::class, 'students']);
+        Route::get('get-students-by-course/{module}', [StudentController::class, 'studentsByCourse']);
 
         Route::get('get-module-teachers/{module}', [AdminModuleController::class, 'getModuleTeachers']);
         Route::get('get-module-students/{id}', [AdminModuleController::class, 'getModuleStudents']);

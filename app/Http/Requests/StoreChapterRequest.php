@@ -25,6 +25,9 @@ class StoreChapterRequest extends FormRequest
             'module_id' => 'required|exists:modules,id',
             'name' => 'required|string|unique:chapters,name,NULL,id,module_id,' . $this->module_id,
             'description' => 'required|string',
+            'is_custom' => 'required|boolean',
+            'student_ids' => 'required_if:is_custom,true|array',
+            'student_ids.*' => 'required|exists:users,id',
         ];
     }
 }

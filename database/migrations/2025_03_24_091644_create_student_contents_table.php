@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('chapters', function (Blueprint $table) {
+        Schema::create('student_contents', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('module_id')->constrained('modules')->cascadeOnDelete();
-            $table->foreignUuid('created_by')->constrained('users')->cascadeOnDelete();
-            $table->unsignedInteger('order');
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->boolean('is_custom')->default(false);
+            $table->uuidMorphs('contentable');
+            $table->foreignUuid('student_id')->constrained('users')->cascadeOnDelete();
             $table->unsignedInteger('status')->default(1);
             $table->timestamps();
             $table->softDeletes();
@@ -31,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('chapters');
+        Schema::dropIfExists('student_contents');
     }
 };

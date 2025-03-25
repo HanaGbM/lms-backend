@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('link')->nullable();
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_custom')->default(false);
             $table->unsignedInteger('status')->default(1);
             $table->timestamps();
             $table->softDeletes();

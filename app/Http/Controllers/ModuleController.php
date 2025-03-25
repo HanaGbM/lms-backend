@@ -29,11 +29,25 @@ class ModuleController extends Controller
 
     public function myModules(Request $request)
     {
-        return Module::when($request->has('search'), function ($query) use ($request) {
-            $query->where('title', 'like', "%{$request->search}%");
-        })->whereHas('teachers', function ($query) {
-            $query->where('teacher_id', Auth::id());
-        })->latest()->paginate($request->per_page ?? 10);
+        return ModuleTeacher::latest()
+            ->when($request->has('search'), function ($query) use ($request) {
+                $query->whereHas('module', function ($query) use ($request) {
+                    $query->where('title', 'like', "%{$request->search}%");
+                });
+            })->where('teacher_id', Auth::id())
+            ->paginate($request->per_page ?? 10)->through(function ($moduleTeacher) {
+                $module = $moduleTeacher->module;
+                $module->is_enrolled = $module->students()->where('student_id', auth()->id())->exists();
+                return [
+                    'id' => $moduleTeacher->id,
+                    'module_id' => $moduleTeacher->module_id,
+                    'title' => $module->title,
+                    'description' => $module->description,
+                    'cover' => $module->cover,
+                    'is_enrolled' => $module->is_enrolled,
+                    'teacher' => $moduleTeacher->teacher->name,
+                ];
+            });
     }
 
     /**

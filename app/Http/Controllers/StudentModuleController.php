@@ -86,6 +86,9 @@ class StudentModuleController extends Controller
         try {
             DB::beginTransaction();
 
+            Gate::authorize('create', $moduleTeacher);
+
+
             if ($moduleTeacher->students()->where('student_id', auth()->id())->exists()) {
                 return response()->json(['message' => 'Module already enrolled.'], 400);
             }

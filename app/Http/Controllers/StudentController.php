@@ -15,19 +15,25 @@ class StudentController extends Controller
     {
         Gate::authorize('viewAny', Module::class);
 
-        return ModuleTeacher::latest()->paginate($request->per_page ?? 10)->through(function ($moduleTeacher) {
-            $module = $moduleTeacher->module;
-            $module->is_enrolled = $module->students()->where('student_id', auth()->id())->exists();
-            return [
-                'id' => $moduleTeacher->id,
-                'module_id' => $moduleTeacher->module_id,
-                'title' => $module->title,
-                'description' => $module->description,
-                'cover' => $module->cover,
-                'is_enrolled' => $module->is_enrolled,
-                'teacher' => $moduleTeacher->teacher->name,
-            ];
-        });
+        return ModuleTeacher::latest()
+            ->when($request->has('search'), function ($query) use ($request) {
+                $query->whereHas('module', function ($query) use ($request) {
+                    $query->where('title', 'like', "%{$request->search}%");
+                });
+            })
+            ->paginate($request->per_page ?? 10)->through(function ($moduleTeacher) {
+                $module = $moduleTeacher->module;
+                $module->is_enrolled = $module->students()->where('student_id', auth()->id())->exists();
+                return [
+                    'id' => $moduleTeacher->id,
+                    'module_id' => $moduleTeacher->module_id,
+                    'title' => $module->title,
+                    'description' => $module->description,
+                    'cover' => $module->cover,
+                    'is_enrolled' => $module->is_enrolled,
+                    'teacher' => $moduleTeacher->teacher->name,
+                ];
+            });
     }
 
     public function myModules(Request $request)
@@ -85,6 +91,27 @@ class StudentController extends Controller
                 });
         })->whereHas('roles', function ($query) {
             $query->where('name', 'Student');
+        })->latest()->paginate($request->per_page ?? 10);
+    }
+
+    public function studentsByCourse(Request $request, $id)
+    {
+        // Gate::authorize('viewAnyStudents', User::class);
+        $request->validate([
+            'per_page' => 'nullable|integer',
+            'search' => 'nullable|string',
+        ]);
+
+        return User::when($request->has('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%")
+                ->where(function ($query) use ($request) {
+                    $query->orWhere('email', 'like', "%{$request->search}%")
+                        ->orWhere('phone', 'like', "%{$request->search}%");
+                });
+        })->whereHas('roles', function ($query) {
+            $query->where('name', 'Student');
+        })->whereHas('enrolledCourses', function ($query) use ($id) {
+            $query->where('module_teacher_id', $id);
         })->latest()->paginate($request->per_page ?? 10);
     }
 }

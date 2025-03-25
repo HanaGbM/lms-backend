@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedInteger('duration')->default(0);
             $table->enum('duration_unit', ['minutes', 'hours'])->default('minutes');
             $table->unsignedInteger('status')->default(1);
+            $table->boolean('is_custom')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

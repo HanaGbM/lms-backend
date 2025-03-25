@@ -119,6 +119,11 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         return $this->hasMany(UserInvite::class, 'user_id', 'id');
     }
 
+    public function enrolledCourses()
+    {
+        return $this->hasMany(StudentModule::class, 'student_id', 'id');
+    }
+
 
     public function getActivitylogOptions(): LogOptions
     {

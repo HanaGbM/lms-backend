@@ -107,6 +107,8 @@ class ChapterController extends Controller
                 'order' => Chapter::where('module_id', $request->module_id)->count() + 1,
             ]);
 
+            
+
             DB::commit();
 
             return $chapter;
