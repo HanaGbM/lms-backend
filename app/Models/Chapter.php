@@ -26,6 +26,7 @@ class Chapter extends Model implements HasMedia
     protected $with = [];
     protected $casts = [
         'is_active' => 'boolean',
+        'is_custom' => 'boolean',
     ];
 
     protected $hidden = [
