@@ -107,7 +107,11 @@ class ChapterController extends Controller
                 'order' => Chapter::where('module_id', $request->module_id)->count() + 1,
             ]);
 
-            
+            foreach ($request->student_ids as  $value) {
+                $chapter->studentContent()->create([
+                    'student_id' => $value,
+                ]);
+            }
 
             DB::commit();
 
