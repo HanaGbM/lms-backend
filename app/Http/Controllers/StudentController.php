@@ -38,6 +38,8 @@ class StudentController extends Controller
 
     public function myModules(Request $request)
     {
+        Gate::authorize('viewEnrolledModule', StudentModule::class);
+
         return StudentModule::where('student_id', auth()->id())
             ->when($request->has('search'), function ($query) use ($request) {
                 $query->whereHas('module', function ($query) use ($request) {

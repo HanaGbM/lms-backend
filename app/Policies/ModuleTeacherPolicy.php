@@ -11,15 +11,22 @@ class ModuleTeacherPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user): Response
     {
         return false;
+    }
+
+    public function viewMyModule(User $user): Response
+    {
+        return $user->hasPermissionTo('read_my_module')
+            ? Response::allow()
+            : Response::deny('You do not have permission to view modules.');;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, ModuleTeacher $moduleTeacher): bool
+    public function view(User $user, ModuleTeacher $moduleTeacher): Response
     {
         return false;
     }
@@ -37,7 +44,7 @@ class ModuleTeacherPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, ModuleTeacher $moduleTeacher): bool
+    public function update(User $user, ModuleTeacher $moduleTeacher): Response
     {
         return false;
     }
@@ -45,7 +52,7 @@ class ModuleTeacherPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, ModuleTeacher $moduleTeacher): bool
+    public function delete(User $user, ModuleTeacher $moduleTeacher): Response
     {
         return false;
     }
@@ -53,7 +60,7 @@ class ModuleTeacherPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, ModuleTeacher $moduleTeacher): bool
+    public function restore(User $user, ModuleTeacher $moduleTeacher): Response
     {
         return false;
     }
@@ -61,7 +68,7 @@ class ModuleTeacherPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, ModuleTeacher $moduleTeacher): bool
+    public function forceDelete(User $user, ModuleTeacher $moduleTeacher): Response
     {
         return false;
     }

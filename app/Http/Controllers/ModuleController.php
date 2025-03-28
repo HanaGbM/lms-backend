@@ -29,6 +29,8 @@ class ModuleController extends Controller
 
     public function myModules(Request $request)
     {
+        Gate::authorize('viewMyModule', ModuleTeacher::class);
+
         return ModuleTeacher::latest()
             ->when($request->has('search'), function ($query) use ($request) {
                 $query->whereHas('module', function ($query) use ($request) {
