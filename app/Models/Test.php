@@ -51,6 +51,13 @@ class Test extends Model
         });
     }
 
+
+    public function studentContent()
+    {
+        return $this->morphMany(StudentContent::class, 'contentable');
+    }
+
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

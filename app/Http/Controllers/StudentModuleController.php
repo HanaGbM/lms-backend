@@ -35,7 +35,12 @@ class StudentModuleController extends Controller
 
         Gate::authorize('read_module_tests');
 
-        return $studentModule->moduleTeacher->module->tests()->when($request->has('search'), function ($query) use ($request) {
+        return $studentModule->moduleTeacher->module->tests()->when(function ($query) {
+            $query->where('is_custom', true)
+                ->whereHas('studentContent', function ($query) {
+                    $query->where('student_id', auth()->id());
+                })->orWhere('is_custom', false);
+        })->when($request->has('search'), function ($query) use ($request) {
             $query->where('title', 'like', "%{$request->search}%");
         })->latest()->paginate($request->per_page ?? 10)->through(function ($question) {
             return $this->score($question);

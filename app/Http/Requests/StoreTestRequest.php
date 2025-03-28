@@ -30,6 +30,9 @@ class StoreTestRequest extends FormRequest
             'due_date' => 'nullable|date|after:start_date',
             'duration' => 'nullable|numeric|min:1',
             'duration_unit' => 'nullable|in:minutes,hours',
+            'is_custom' => 'required|boolean',
+            'student_ids' => 'required_if:is_custom,true|array',
+            'student_ids.*' => 'required|exists:users,id',
         ];
     }
 }

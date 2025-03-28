@@ -70,6 +70,7 @@ class TestController extends Controller
                 'due_date' => $request->due_date,
                 'duration' => $request->duration ?? 0,
                 'duration_unit' => $request->duration_unit ?? 'minutes',
+                'is_custom' => $request->is_custom,
             ]);
         } elseif ($request->model_type === 'chapter') {
             $chapter = Chapter::find($request->chapter_id);
@@ -88,12 +89,23 @@ class TestController extends Controller
                 'end_date' => $request->end_date,
                 'duration' => $request->duration,
                 'duration_unit' => $request->duration_unit,
+                'is_custom' => $request->is_custom,
             ]);
         } else {
             return response()->json([
                 'message' => 'Invalid model type',
             ], 400);
         }
+
+
+        if ($request->is_custom) {
+            foreach ($request->student_ids as  $value) {
+                $test->studentContent()->create([
+                    'student_id' => $value,
+                ]);
+            }
+        }
+
 
         DB::commit();
 
