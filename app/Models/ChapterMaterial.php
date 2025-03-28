@@ -53,6 +53,12 @@ class ChapterMaterial extends Model implements HasMedia
         return $this->belongsTo(Chapter::class);
     }
 
+
+    public function studentContent()
+    {
+        return $this->morphMany(StudentContent::class, 'contentable');
+    }
+
     protected static function boot()
     {
         parent::boot();

@@ -25,7 +25,12 @@ class ChapterMaterialController extends Controller
 
         $chapter = Chapter::find($request->chapter_id);
 
-        return $chapter->materials()->when($request->has('search'), function ($query) use ($request) {
+        return $chapter->materials()->when(function ($query) {
+            $query->where('is_custom', true)
+                ->whereHas('studentContent', function ($query) {
+                    $query->where('student_id', auth()->id());
+                })->orWhere('is_custom', false);
+        })->when($request->has('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%");
         })->latest()->paginate($request->per_page ?? 10);
     }
@@ -44,11 +49,20 @@ class ChapterMaterialController extends Controller
                 'chapter_id' => $request->chapter_id,
                 'name' => $request->name,
                 'description' => $request->description,
+                'is_custom' => $request->is_custom,
             ]);
 
             if ($request->hasFile('file') && $request->file('file')->isValid()) {
                 $chapterMaterial->addMediaFromRequest('file')
                     ->toMediaCollection('file');
+            }
+
+            if ($request->is_custom) {
+                foreach ($request->student_ids as  $value) {
+                    $chapterMaterial->studentContent()->create([
+                        'student_id' => $value,
+                    ]);
+                }
             }
 
             DB::commit();
