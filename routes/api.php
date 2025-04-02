@@ -138,6 +138,7 @@ Route::group([
         Route::post('enroll-module/{moduleTeacher}', [StudentModuleController::class, 'store']);
 
         Route::get('my-enrolled-modules', [StudentController::class, 'myModules']);
+        Route::get('my-enrolled-module-detail/{studentModule}', [StudentController::class, 'moduleDetail']);
         Route::get('module-chapters/{studentModule}', [StudentModuleController::class, 'moduleChapters']);
         Route::get('module-tests/{studentModule}', [StudentModuleController::class, 'moduleTests']);
 

@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
-class StudentController extends Controller
+class StudentController extends StudentModuleController
 {
     public function modules(Request $request)
     {
@@ -63,17 +63,24 @@ class StudentController extends Controller
             });
     }
 
+
     public function moduleDetail(StudentModule $studentModule)
     {
         return [
             'id' => $studentModule->id,
-            'title' => $studentModule->module->title,
-            'description' => $studentModule->module->description,
-            'cover' => $studentModule->module->cover,
+            'title' => $studentModule->moduleTeacher->module->title,
+            'description' => $studentModule->moduleTeacher->module->description,
+            'cover' => $studentModule->moduleTeacher->module->cover,
             'status' => $studentModule->status,
             'enrolled_at' => $studentModule->created_at,
             'started_at' => $studentModule->started_at,
             'completed_at' => $studentModule->completed_at,
+            'chapters' => $studentModule->moduleTeacher->module->chapters()
+                ->orderBy('order')->paginate($request->per_page ?? 10),
+            'tests' => $studentModule->moduleTeacher->module->tests()
+                ->latest()->paginate($request->per_page ?? 10)->through(function ($question) {
+                    return $this->score($question);
+                }),
         ];
     }
 

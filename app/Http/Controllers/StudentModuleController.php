@@ -58,7 +58,7 @@ class StudentModuleController extends Controller
     }
 
 
-    protected function score($question)
+    public function score($question)
     {
         if ($question->question_type === 'choice') {
             $myResponse = $question->responses()->where('user_id', auth()->id())->latest()->first();
