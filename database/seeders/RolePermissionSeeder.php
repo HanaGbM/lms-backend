@@ -79,6 +79,8 @@ class RolePermissionSeeder extends Seeder
             $teacherPermissions[] = "{$prefix}test";
             $teacherPermissions[] = "{$prefix}question";
         }
+
+        $teacherPermissions[] = "read_my_module";
         $teacherPermissions[] = "sort_chapters";
         $teacherPermissions[] = "read_student";
         $teacherPermissions[] = "delete_file";
@@ -93,7 +95,7 @@ class RolePermissionSeeder extends Seeder
         $student = Role::where('name', 'Student')->first();
         $studentPermissions = [];
         foreach ($permissionPrefixes as $prefix) {
-            // $studentPermissions[] = "{$prefix}module";
+            $studentPermissions[] = "{$prefix}discussion";
         }
         $studentPermissions[] = "read_module";
         $studentPermissions[] = "read_module_tests";

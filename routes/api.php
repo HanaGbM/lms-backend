@@ -65,9 +65,9 @@ Route::group([
         Route::post('read-all-notifications', [NotificationController::class, 'readNotifications']);
         Route::post('read-notification/{id}', [NotificationController::class, 'readNotification']);
 
-        Route::get('get-discussions/{module}', [DiscussionController::class, 'index']);
+        Route::get('get-discussions/{moduleTeacher}', [DiscussionController::class, 'index']);
         Route::get('discussion-detail/{discussion}', [DiscussionController::class, 'show']);
-        Route::post('create-discussion/{module}', [DiscussionController::class, 'store']);
+        Route::post('create-discussion/{moduleTeacher}', [DiscussionController::class, 'store']);
         Route::patch('update-discussion/{discussion}', [DiscussionController::class, 'update']);
         Route::delete('delete-discussion/{discussion}', [DiscussionController::class, 'destroy']);
 

@@ -45,4 +45,9 @@ class ModuleTeacher extends Model
     {
         return $this->hasMany(StudentModule::class, 'module_teacher_id');
     }
+
+    public function discussions()
+    {
+        return $this->morphMany(Discussion::class, 'discussable');
+    }
 }

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreDiscussionRequest;
 use App\Http\Requests\UpdateDiscussionRequest;
 use App\Models\Discussion;
 use App\Models\Module;
+use App\Models\ModuleTeacher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -15,11 +16,11 @@ class DiscussionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Module $module)
+    public function index(ModuleTeacher $moduleTeacher)
     {
         Gate::authorize('viewAny', Discussion::class);
 
-        return $module->discussions()->latest()->paginate(10)->through(function ($discussion) {
+        return $moduleTeacher->discussions()->latest()->paginate(10)->through(function ($discussion) {
             $discussion->replies = $discussion->replies()->latest()->paginate(10);
             return $discussion->load('user');
         });
@@ -28,14 +29,14 @@ class DiscussionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreDiscussionRequest $request, Module $module)
+    public function store(StoreDiscussionRequest $request, ModuleTeacher $moduleTeacher)
     {
         Gate::authorize('create', Discussion::class);
         try {
 
             DB::beginTransaction();
 
-            $discussion = $module->discussions()->create([
+            $discussion = $moduleTeacher->discussions()->create([
                 'title' => $request->title,
                 'content' => $request->content,
                 'user_id' => auth()->id(),
