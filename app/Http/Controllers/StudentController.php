@@ -69,7 +69,7 @@ class StudentController extends StudentModuleController
     {
         return [
             'id' => $studentModule->id,
-            'module_teacher_id' => $studentModule->module_teacher_ids,
+            'module_teacher_id' => $studentModule->module_teacher_id,
             'title' => $studentModule->moduleTeacher->module->title,
             'description' => $studentModule->moduleTeacher->module->description,
             'cover' => $studentModule->moduleTeacher->module->cover,
