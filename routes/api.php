@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminModuleController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\ChapterMaterialController;
@@ -131,6 +132,9 @@ Route::group([
         Route::get('short-answer-assignment-responses/{module}', [QuestionResponseController::class, 'shortAnswerAssignmentResponses']);
         Route::post('evaluate-short-answer/{questionResponse}', [QuestionResponseController::class, 'evaluate']);
 
+        Route::resource('announcements', AnnouncementController::class);
+
+        Route::get('get-announcements', [AnnouncementController::class, 'getAnnouncements']);
 
         /**
          * Students Endpoints */

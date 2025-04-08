@@ -6,6 +6,7 @@ use App\Http\Requests\StoreMeetingRequest;
 use App\Http\Requests\UpdateMeetingRequest;
 use App\Models\Meeting;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class MeetingController extends Controller
 {
@@ -14,6 +15,8 @@ class MeetingController extends Controller
      */
     public function index()
     {
+        Gate::authorize('viewAny', Meeting::class);
+
         return Meeting::latest()->paginate();
     }
 
@@ -23,6 +26,7 @@ class MeetingController extends Controller
      */
     public function store(StoreMeetingRequest $request)
     {
+        Gate::authorize('create', Meeting::class);
         try {
             DB::beginTransaction();
 
@@ -56,6 +60,7 @@ class MeetingController extends Controller
      */
     public function show(Meeting $meeting)
     {
+        Gate::authorize('view', $meeting);
         return $meeting->load('invites.user');
     }
 
@@ -64,6 +69,7 @@ class MeetingController extends Controller
      */
     public function update(UpdateMeetingRequest $request, Meeting $meeting)
     {
+        Gate::authorize('update', $meeting);
         try {
             DB::beginTransaction();
 
@@ -98,6 +104,7 @@ class MeetingController extends Controller
      */
     public function destroy(Meeting $meeting)
     {
+        Gate::authorize('delete', $meeting);
         try {
             DB::beginTransaction();
             $meeting->invites()->delete();
