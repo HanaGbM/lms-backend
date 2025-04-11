@@ -86,7 +86,7 @@ class TestController extends Controller
             $test =  $chapter->tests()->create([
                 'name' => $request->name,
                 'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
+                'due_date' => $request->due_date,
                 'duration' => $request->duration,
                 'duration_unit' => $request->duration_unit,
                 'is_custom' => $request->is_custom,

@@ -1,0 +1,100 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Test;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+
+class CalendarController extends Controller
+{
+    public function index(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $startDate = Carbon::parse($request->input('start_date'));
+        $endDate = Carbon::parse($request->input('end_date'));
+
+        // Initialize date structure
+        $dateRange = CarbonPeriod::create($startDate, $endDate);
+        $dates = [];
+
+        foreach ($dateRange as $date) {
+            $dateString = $date->format('Y-m-d');
+            $dates[$dateString] = [
+                'date' => $dateString,
+                'date_iso' => $date->toISOString(),
+                'events' => [],
+                'day_info' => [
+                    'day_name' => $date->dayName,
+                    'is_weekend' => $date->isWeekend(),
+                    'month_name' => $date->monthName,
+                    'year' => $date->year,
+                ]
+            ];
+        }
+        $testEvents = $this->getTestEvents($startDate, $endDate);
+
+
+        foreach ($testEvents as $dateString => $events) {
+            if (isset($dates[$dateString])) {
+                $dates[$dateString]['events'] = $events;
+            }
+        }
+
+        return response()->json([
+            'requested_start' => $startDate->format('Y-m-d'),
+            'requested_end' => $endDate->format('Y-m-d'),
+            'total_days' => count($dates),
+            'date_range' => $dates,
+            'meta' => [
+                'test_count' => array_reduce($dates, fn($carry, $date) => $carry + count($date['events']), 0)
+            ]
+        ]);
+    }
+
+
+
+    private function getTestEvents(Carbon $startDate, Carbon $endDate): array
+    {
+        $tests = Test::where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('start_date', [$startDate, $endDate])
+                ->orWhereBetween('due_date', [$startDate, $endDate])
+                ->orWhere(function ($q) use ($startDate, $endDate) {
+                    $q->where('start_date', '<=', $startDate)
+                        ->where('due_date', '>=', $endDate);
+                });
+        })
+            ->get();
+
+        $events = [];
+
+        foreach ($tests as $test) {
+            $testStart = Carbon::parse($test->start_date);
+            $testEnd = Carbon::parse($test->due_date);
+
+            $testPeriod = CarbonPeriod::create($testStart, $testEnd);
+
+            foreach ($testPeriod as $day) {
+                $dayString = $day->format('Y-m-d');
+
+                if (!isset($events[$dayString])) {
+                    $events[$dayString] = [];
+                }
+
+                $events[$dayString][] = [
+                    'message' => "Test: {$test->title} from {$testStart->format('H:i')} to {$testEnd->format('H:i')}",
+                    'test_id' => $test->id,
+                    'start' => $test->start_date,
+                    'end' => $test->due_date
+                ];
+            }
+        }
+
+        return $events;
+    }
+}

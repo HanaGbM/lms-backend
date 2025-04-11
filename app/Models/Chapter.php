@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\LogOptions;
@@ -67,6 +68,10 @@ class Chapter extends Model implements HasMedia
         return $this->morphMany(StudentContent::class, 'contentable');
     }
 
+    public function tests(): MorphMany
+    {
+        return $this->morphMany(Test::class, 'testable');
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

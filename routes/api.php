@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminModuleController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\ChapterMaterialController;
 use App\Http\Controllers\DiscussionController;
@@ -150,5 +151,7 @@ Route::group([
 
         Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
         Route::get('grade-report/{studentModule}', [GradeReportController::class, 'myGrade']);
+
+        Route::get('get-calendars', [CalendarController::class, 'index']);
     });
 });
