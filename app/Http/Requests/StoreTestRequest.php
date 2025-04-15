@@ -23,8 +23,8 @@ class StoreTestRequest extends FormRequest
     {
         return [
             'model_type' => 'required|in:module,chapter',
-            'module_id' => 'required_if:category,module|exists:modules,id',
-            'chapter_id' => 'required_if:category,chapter|exists:chapters,id',
+            'module_id' => 'required_if:model_type,module|exists:module_teachers,id',
+            'chapter_id' => 'required_if:model_type,chapter|exists:chapters,id',
             'name' => 'required|string',
             'start_date' => 'nullable|date',
             'due_date' => 'nullable|date|after:start_date',
