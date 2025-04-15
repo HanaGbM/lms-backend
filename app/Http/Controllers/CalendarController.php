@@ -65,22 +65,30 @@ class CalendarController extends Controller
         //     ]
         // ]);
 
+        $eventMap = [];
+
         foreach ($dates as $date) {
             foreach ($date['events'] as $event) {
-                $calendarEvents[] = [
-                    'id' => (string) Str::uuid(),
-                    'title' => $event['message'],
-                    'start' => $event['start'],
-                    'end' => $event['end'],
-                    'allDay' => true,
-                    'extendedProps' => [
-                        'calendar' => isset($event['test_id']) ? 'test' : 'meeting',
-                    ],
-                ];
+                $key = $event['start'] . '|' . $event['end'];
+
+                if (!isset($eventMap[$key])) {
+                    $eventMap[$key] = [
+                        'id' => (string) Str::uuid(),
+                        'title' => $event['message'],
+                        'start' => $event['start'],
+                        'end' => $event['end'],
+                        'allDay' => true,
+                        'extendedProps' => [
+                            'calendar' => isset($event['test_id']) ? 'test' : 'meeting',
+                        ],
+                    ];
+                }
+                // else: skip this one, same start+end already exists
             }
         }
 
-        return $calendarEvents;
+
+        return array_values($eventMap);
     }
 
 

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreTestRequest;
 use App\Http\Requests\UpdateTestRequest;
 use App\Models\Chapter;
 use App\Models\Module;
+use App\Models\ModuleTeacher;
 use App\Models\Test;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +28,7 @@ class TestController extends Controller
         ]);
 
         if ($request->model_type === 'module') {
-            $module = Module::find($request->module_id);
+            $module = ModuleTeacher::find($request->module_id);
             $tests = $module->tests()->when($request->has('search'), function ($query) use ($request) {
                 $query->where('name', 'like', "%{$request->search}%");
             })->get();
@@ -54,7 +55,7 @@ class TestController extends Controller
         Gate::authorize('create', Test::class);
 
         if ($request->model_type === 'module') {
-            $module = Module::find($request->module_id);
+            $module = ModuleTeacher::find($request->module_id);
 
             $exists = $module->tests()->where('name', $request->name)->exists();
 
