@@ -7,6 +7,7 @@ use App\Models\Test;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Str;
 
 class CalendarController extends Controller
 {
@@ -54,15 +55,32 @@ class CalendarController extends Controller
             }
         }
 
-        return response()->json([
-            'requested_start' => $startDate->format('Y-m-d'),
-            'requested_end' => $endDate->format('Y-m-d'),
-            'total_days' => count($dates),
-            'date_range' => $dates,
-            'meta' => [
-                'test_count' => array_reduce($dates, fn($carry, $date) => $carry + count($date['events']), 0)
-            ]
-        ]);
+        // return response()->json([
+        //     'requested_start' => $startDate->format('Y-m-d'),
+        //     'requested_end' => $endDate->format('Y-m-d'),
+        //     'total_days' => count($dates),
+        //     'date_range' => $dates,
+        //     'meta' => [
+        //         'test_count' => array_reduce($dates, fn($carry, $date) => $carry + count($date['events']), 0)
+        //     ]
+        // ]);
+
+        foreach ($dates as $date) {
+            foreach ($date['events'] as $event) {
+                $calendarEvents[] = [
+                    'id' => (string) Str::uuid(),
+                    'title' => $event['message'],
+                    'start' => $event['start'],
+                    'end' => $event['end'],
+                    'allDay' => true,
+                    'extendedProps' => [
+                        'calendar' => isset($event['test_id']) ? 'test' : 'meeting',
+                    ],
+                ];
+            }
+        }
+
+        return $calendarEvents;
     }
 
 
