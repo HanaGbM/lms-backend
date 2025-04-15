@@ -87,11 +87,11 @@ class CalendarController extends Controller
 
         foreach ($dates as $date) {
             foreach ($date['events'] as $event) {
-                $key = $event['start'] . '|' . $event['end'];
+                $eventId = $event['id'];
 
-                if (!isset($eventMap[$key])) {
-                    $eventMap[$key] = [
-                        'id' => $event['id'],
+                if (!isset($eventMap[$eventId])) {
+                    $eventMap[$eventId] = [
+                        'id' => $eventId,
                         'title' => $event['message'],
                         'start' => $event['start'],
                         'end' => $event['end'],
@@ -103,7 +103,6 @@ class CalendarController extends Controller
                 }
             }
         }
-
 
         return array_values($eventMap);
     }
@@ -119,8 +118,7 @@ class CalendarController extends Controller
                     $q->where('start_date', '<=', $startDate)
                         ->where('due_date', '>=', $endDate);
                 });
-        })
-            ->get();
+        })->get();
 
         $events = [];
 
@@ -139,10 +137,10 @@ class CalendarController extends Controller
 
                 $events[$dayString][] = [
                     'id' => $test->id,
-                    'message' => "Test: {$test->title} from {$testStart->format('H:i')} to {$testEnd->format('H:i')}",
+                    'message' => "Your test {$test->name} is due on {$testEnd->format('Y-m-d')}",
                     'test_id' => $test->id,
-                    'start' => $test->start_date,
-                    'end' => $test->due_date
+                    'start' =>  $testStart,
+                    'end' => $testEnd
                 ];
             }
         }
@@ -179,7 +177,7 @@ class CalendarController extends Controller
 
                 $events[$dayString][] = [
                     'id' => $meeting->id,
-                    'message' => "Meeting: {$meeting->title} from {$meetingStart->format('H:i')} to {$meetingEnd->format('H:i')}",
+                    'message' => "Your meeting {$meeting->title} is scheduled for {$meetingStart->format('Y-m-d')}",
                     'meeting_id' => $meeting->id,
                     'meeting_url' => $meeting->url,
                     'start' => $meeting->start_date,
