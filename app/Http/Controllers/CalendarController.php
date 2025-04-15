@@ -65,6 +65,24 @@ class CalendarController extends Controller
         //     ]
         // ]);
 
+
+        // foreach ($dates as $date) {
+        //     foreach ($date['events'] as $event) {
+        //         $calendarEvents[] = [
+        //             'id' => (string) Str::uuid(),
+        //             'title' => $event['message'],
+        //             'start' => $event['start'],
+        //             'end' => $event['end'],
+        //             'allDay' => true,
+        //             'extendedProps' => [
+        //                 'calendar' => isset($event['test_id']) ? 'test' : 'meeting',
+        //             ],
+        //         ];
+        //     }
+        // }
+
+        // return $calendarEvents;
+
         $eventMap = [];
 
         foreach ($dates as $date) {
@@ -73,7 +91,7 @@ class CalendarController extends Controller
 
                 if (!isset($eventMap[$key])) {
                     $eventMap[$key] = [
-                        'id' => (string) Str::uuid(),
+                        'id' => $event['id'],
                         'title' => $event['message'],
                         'start' => $event['start'],
                         'end' => $event['end'],
@@ -83,7 +101,6 @@ class CalendarController extends Controller
                         ],
                     ];
                 }
-                // else: skip this one, same start+end already exists
             }
         }
 
@@ -121,6 +138,7 @@ class CalendarController extends Controller
                 }
 
                 $events[$dayString][] = [
+                    'id' => $test->id,
                     'message' => "Test: {$test->title} from {$testStart->format('H:i')} to {$testEnd->format('H:i')}",
                     'test_id' => $test->id,
                     'start' => $test->start_date,
@@ -160,6 +178,7 @@ class CalendarController extends Controller
                 }
 
                 $events[$dayString][] = [
+                    'id' => $meeting->id,
                     'message' => "Meeting: {$meeting->title} from {$meetingStart->format('H:i')} to {$meetingEnd->format('H:i')}",
                     'meeting_id' => $meeting->id,
                     'meeting_url' => $meeting->url,
