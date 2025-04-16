@@ -130,6 +130,7 @@ Route::group([
 
 
         Route::get('student-responses/{test}/{student}', [QuestionResponseController::class, 'studentResponses']);
+        Route::post('evaluate-short-answer/{questionResponse}', [QuestionResponseController::class, 'evaluate']);
 
         Route::resource('announcements', AnnouncementController::class);
 
