@@ -150,7 +150,7 @@ Route::group([
         Route::get('test-questions/{test}', [StudentModuleController::class, 'testQuestions']);
 
         Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
-        Route::get('grade-report/{studentModule}', [GradeReportController::class, 'myGrade']);
+        Route::get('grade-report/{test}', [GradeReportController::class, 'myGrade']);
 
         Route::get('get-calendars', [CalendarController::class, 'index']);
     });

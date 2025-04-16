@@ -5,19 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Module;
 use App\Models\QuestionResponse;
 use App\Models\StudentModule;
+use App\Models\Test;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class GradeReportController extends Controller
 {
-    public function myGrade(StudentModule $studentModule)
+    public function myGrade(Test $test)
     {
         Gate::authorize('readGradeReport', QuestionResponse::class);
-        $responses = QuestionResponse::whereHas('question', function ($query) use ($studentModule) {
-            $query->whereHas('test', function ($query) use ($studentModule) {
-                $query->where('testable_id', $studentModule->moduleTeacher->module_id);
-            });
+        $responses = QuestionResponse::whereHas('question', function ($query) use ($test) {
+            $query->where('test_id', $test->id);
         })->with(['question', 'option'])->where('user_id', Auth::id())
             ->latest()
             ->get()
@@ -43,15 +42,13 @@ class GradeReportController extends Controller
                 return [
                     'score' => $score,
                     'score_value' => $response->question->score_value,
-                    'category' => $response->question->category,
                     'question_type' => $response->question->question_type,
-                    'question' => $response->question->title,
+                    'question' => $response->question->name,
                     'answer' => $answer,
                     'correct_answer' => $correctAnswer,
                     'is_correct' => $isCorrect,
                     'is_evaluated' => $isEvaluated
                 ];
-                dd('sdas');
             })
             ->groupBy('question_type')
             ->mapWithKeys(function ($items, $questionType) {
