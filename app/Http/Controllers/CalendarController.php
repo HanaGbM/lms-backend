@@ -16,7 +16,7 @@ class CalendarController extends Controller
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'module_id' => 'required|exists:module_teachers,id',
+            'module_id' => 'nullable|exists:module_teachers,id',
         ]);
 
         $startDate = Carbon::parse($request->input('start_date'));
