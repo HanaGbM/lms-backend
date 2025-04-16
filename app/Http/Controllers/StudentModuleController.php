@@ -59,10 +59,10 @@ class StudentModuleController extends Controller
                     'duration' => $test->duration,
                     'duration_unit' => $test->duration_unit,
                     'is_custom' => $test->is_custom,
-                    'created_at' => $test->created_at,
                     'question_count' => $questionCount,
                     'response_count' => $responseCount,
-                    'is_completed' =>  $isCompleted
+                    'is_completed' =>  $isCompleted,
+                    'created_at' => $test->created_at,
                 ];
             });
     }
