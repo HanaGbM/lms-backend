@@ -29,9 +29,10 @@ class TestController extends Controller
 
         if ($request->model_type === 'module') {
             $module = ModuleTeacher::find($request->module_id);
-            $tests = $module->tests()->when($request->has('search'), function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->search}%");
-            })->get();
+            $tests = $module->tests()
+                ->when($request->has('search'), function ($query) use ($request) {
+                    $query->where('name', 'like', "%{$request->search}%");
+                })->get();
         } elseif ($request->model_type === 'chapter') {
             $chapter = Chapter::find($request->chapter_id);
             $tests = $chapter->tests()->when($request->has('search'), function ($query) use ($request) {

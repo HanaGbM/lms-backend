@@ -33,6 +33,29 @@ class StoreQuestionRequest extends FormRequest
     }
 
     /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $questionType = $this->input('question_type');
+            $options = $this->input('options', []);
+
+            if (in_array($questionType, ['choice', 'choice_short'])) {
+                $hasCorrect = collect($options)->contains(function ($option) {
+                    return isset($option['is_correct']) && $option['is_correct'];
+                });
+
+                if (!$hasCorrect) {
+                    $validator->errors()->add('options', 'At least one option must be marked as correct.');
+                }
+            }
+        });
+    }
+
+    /**
      * Get the error messages for the defined validation rules.
      *
      * @return array<string, string>
@@ -40,8 +63,8 @@ class StoreQuestionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'category.in' => 'The selected category is invalid you can only select in Test or Assignment.',
-            'question_type.in' => 'The selected question type is invalid you can only select in choice, short, choice_short.',
+            'category.in' => 'The selected category is invalid. You can only select "Test" or "Assignment".',
+            'question_type.in' => 'The selected question type is invalid. You can only select "choice", "short", or "choice_short".',
         ];
     }
 }

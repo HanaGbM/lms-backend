@@ -8,6 +8,7 @@ use App\Models\Module;
 use App\Models\ModuleTeacher;
 use App\Models\Question;
 use App\Models\QuestionResponse;
+use App\Models\Test;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,23 +46,40 @@ class QuestionResponseController extends StudentModuleController
         );
     }
 
-    public function shortAnswerTestResponses(Request $request, ModuleTeacher $module)
+    public function studentResponses(Request $request, Test $test, User $student)
     {
         Gate::authorize('read_question_response');
-        return QuestionResponse::whereHas('question', function ($query) use ($module) {
-            $query->whereHas('test', function ($query) use ($module) {
-                $query->where('testable_id', $module->id);
-            })->where('question_type', 'short');
-        })->with('question')->latest()->paginate($request->per_page ?? 10)->through(function ($response) {
+        return QuestionResponse::whereHas('question', function ($query) use ($test) {
+            $query->where('test_id', $test->id);
+        })->with('question')->where('user_id', $student->id)->latest()->paginate($request->per_page ?? 10)->through(function ($response) {
+            $score = 0;
+            $answer = '';
+            $isCorrect = null;
+            $isEvaluated = true;
+
+            if ($response->question->question_type == 'short') {
+                $score = $response->score;
+                $answer = $response->other_answer ?: 'No answer provided';
+                $isEvaluated = $response->score  ? true : false;
+                $correctAnswer = "";
+                $isCorrect = "";
+            } elseif (isset($response->option)) {
+                $score = $response->option->is_correct ? $response->question->score_value : 0;
+                $answer = $response->option ? $response->option->choice : 'No option selected';
+                $correctAnswer = $response->question->options->where('is_correct', true)->first()->choice ?? null;
+                $isCorrect = $response->option->is_correct;
+            }
             return [
-                'id' => $response->id,
-                'student' => $response->user->name,
-                'category' => $response->question->category,
-                'question' => $response->question->title,
-                'answer' => $response->other_answer,
-                'score' => $response->score,
+                'score' => $score,
+                'score_value' => $response->question->score_value,
+                'question_type' => $response->question->question_type,
+                'question' => $response->question->name,
+                'answer' => $answer,
+                'correct_answer' => $correctAnswer,
+                'is_correct' => $isCorrect,
+                'is_evaluated' => $isEvaluated
             ];
-        })->groupBy('category');
+        });
     }
 
     public function shortAnswerAssignmentResponses(Request $request, Module $module)

@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Module;
 use App\Models\QuestionResponse;
-use App\Models\StudentModule;
 use App\Models\Test;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 

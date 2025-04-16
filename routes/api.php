@@ -129,9 +129,7 @@ Route::group([
         Route::get('participants/{meeting}', [MeetingController::class, 'show']);
 
 
-        Route::get('short-answer-test-responses/{module}', [QuestionResponseController::class, 'shortAnswerTestResponses']);
-        Route::get('short-answer-assignment-responses/{module}', [QuestionResponseController::class, 'shortAnswerAssignmentResponses']);
-        Route::post('evaluate-short-answer/{questionResponse}', [QuestionResponseController::class, 'evaluate']);
+        Route::get('student-responses/{test}/{student}', [QuestionResponseController::class, 'studentResponses']);
 
         Route::resource('announcements', AnnouncementController::class);
 
