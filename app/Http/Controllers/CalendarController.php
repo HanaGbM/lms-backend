@@ -16,6 +16,7 @@ class CalendarController extends Controller
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'module_id' => 'required|exists:module_teachers,id',
         ]);
 
         $startDate = Carbon::parse($request->input('start_date'));
@@ -38,7 +39,7 @@ class CalendarController extends Controller
                 ]
             ];
         }
-        $testEvents = $this->getTestEvents($startDate, $endDate);
+        $testEvents = $this->getTestEvents($startDate, $endDate, $request->input('module_id'));
 
 
         foreach ($testEvents as $dateString => $events) {
@@ -47,7 +48,7 @@ class CalendarController extends Controller
             }
         }
 
-        $meetingEvents = $this->getMeetingEvents($startDate, $endDate);
+        $meetingEvents = $this->getMeetingEvents($startDate, $endDate, $request->input('module_id'));
 
         foreach ($meetingEvents as $dateString => $events) {
             if (isset($dates[$dateString])) {
@@ -55,33 +56,6 @@ class CalendarController extends Controller
             }
         }
 
-        // return response()->json([
-        //     'requested_start' => $startDate->format('Y-m-d'),
-        //     'requested_end' => $endDate->format('Y-m-d'),
-        //     'total_days' => count($dates),
-        //     'date_range' => $dates,
-        //     'meta' => [
-        //         'test_count' => array_reduce($dates, fn($carry, $date) => $carry + count($date['events']), 0)
-        //     ]
-        // ]);
-
-
-        // foreach ($dates as $date) {
-        //     foreach ($date['events'] as $event) {
-        //         $calendarEvents[] = [
-        //             'id' => (string) Str::uuid(),
-        //             'title' => $event['message'],
-        //             'start' => $event['start'],
-        //             'end' => $event['end'],
-        //             'allDay' => true,
-        //             'extendedProps' => [
-        //                 'calendar' => isset($event['test_id']) ? 'test' : 'meeting',
-        //             ],
-        //         ];
-        //     }
-        // }
-
-        // return $calendarEvents;
 
         $eventMap = [];
 
@@ -109,10 +83,15 @@ class CalendarController extends Controller
 
 
 
-    private function getTestEvents(Carbon $startDate, Carbon $endDate): array
+    private function getTestEvents(Carbon $startDate, Carbon $endDate, $moduleId): array
     {
-        $tests = Test::where(function ($query) use ($startDate, $endDate) {
+        $tests = Test::where(function ($query) use ($startDate, $endDate, $moduleId) {
             $query->whereBetween('start_date', [$startDate, $endDate])
+                ->when($moduleId, function ($query) use ($moduleId) {
+                    $query->whereHas('testable', function ($q) use ($moduleId) {
+                        $q->where('testable_id', $moduleId);
+                    });
+                })
                 ->orWhereBetween('due_date', [$startDate, $endDate])
                 ->orWhere(function ($q) use ($startDate, $endDate) {
                     $q->where('start_date', '<=', $startDate)
@@ -148,10 +127,15 @@ class CalendarController extends Controller
         return $events;
     }
 
-    private function getMeetingEvents(Carbon $startDate, Carbon $endDate): array
+    private function getMeetingEvents(Carbon $startDate, Carbon $endDate, $moduleId): array
     {
-        $meetings = Meeting::where(function ($query) use ($startDate, $endDate) {
+        $meetings = Meeting::where(function ($query) use ($startDate, $endDate, $moduleId) {
             $query->whereBetween('start_date', [$startDate, $endDate])
+                ->when($moduleId, function ($query) use ($moduleId) {
+                    $query->whereHas('testable', function ($q) use ($moduleId) {
+                        $q->where('testable_id', $moduleId);
+                    });
+                })
                 ->orWhereBetween('end_date', [$startDate, $endDate])
                 ->orWhere(function ($q) use ($startDate, $endDate) {
                     $q->where('start_date', '<=', $startDate)

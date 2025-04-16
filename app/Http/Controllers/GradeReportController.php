@@ -35,8 +35,8 @@ class GradeReportController extends Controller
                     $isCorrect = "";
                 } elseif (isset($response->option)) {
                     $score = $response->option->is_correct ? $response->question->score_value : 0;
-                    $answer = $response->option->choice ?: 'No option selected';
-                    $correctAnswer = $response->question->options->where('is_correct', true)->first()->choice;
+                    $answer = $response->option ? $response->option->choice : 'No option selected';
+                    $correctAnswer = $response->question->options->where('is_correct', true)->first()->choice ?? null;
                     $isCorrect = $response->option->is_correct;
                 }
 
@@ -51,6 +51,7 @@ class GradeReportController extends Controller
                     'is_correct' => $isCorrect,
                     'is_evaluated' => $isEvaluated
                 ];
+                dd('sdas');
             })
             ->groupBy('question_type')
             ->mapWithKeys(function ($items, $questionType) {
@@ -63,6 +64,7 @@ class GradeReportController extends Controller
                 }, 0);
                 $numberOfQuestions = $items->count();
 
+
                 return [$questionType => [
                     'total_questions' => $numberOfQuestions,
                     'total_score' => $totalScore,
@@ -74,7 +76,6 @@ class GradeReportController extends Controller
         $overallTotalScore = $responses->sum('total_score');
         $overallTotalScoreValue = $responses->sum('total_score_value');
         $totalQuestions = $responses->sum('total_questions');
-
         return [
             'total_questions' => $totalQuestions,
             'overall_total_score' => $overallTotalScore,

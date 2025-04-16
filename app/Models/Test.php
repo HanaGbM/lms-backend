@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,6 +40,11 @@ class Test extends Model
         return $this->hasMany(Question::class, 'test_id', 'id');
     }
 
+    public function testable(): BelongsTo
+    {
+        return $this->belongsTo(ModuleTeacher::class, 'testable_id', 'id');
+    }
+
 
     protected static function boot()
     {
@@ -56,7 +62,6 @@ class Test extends Model
     {
         return $this->morphMany(StudentContent::class, 'contentable');
     }
-
 
     public function getActivitylogOptions(): LogOptions
     {
