@@ -79,7 +79,7 @@ class QuestionResponseController extends StudentModuleController
                 'is_correct' => $isCorrect,
                 'is_evaluated' => $isEvaluated
             ];
-        });
+        })->groupBy('question_type');
     }
 
     public function shortAnswerAssignmentResponses(Request $request, Module $module)
