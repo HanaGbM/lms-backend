@@ -61,7 +61,7 @@ class StudentModuleController extends Controller
                     'is_custom' => $test->is_custom,
                     'question_count' => $questionCount,
                     'response_count' => $responseCount,
-                    'is_completed' =>  $isCompleted,
+                    'is_completed' => $questionCount == 0 ? false : $isCompleted,
                     'created_at' => $test->created_at,
                 ];
             });
