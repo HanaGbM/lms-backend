@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreQuestionResponseRequest;
 use App\Http\Requests\UpdateQuestionResponseRequest;
 use App\Models\Module;
+use App\Models\ModuleTeacher;
 use App\Models\Question;
 use App\Models\QuestionResponse;
 use App\Models\User;
@@ -44,11 +45,13 @@ class QuestionResponseController extends StudentModuleController
         );
     }
 
-    public function shortAnswerTestResponses(Request $request, Module $module)
+    public function shortAnswerTestResponses(Request $request, ModuleTeacher $module)
     {
         Gate::authorize('read_question_response');
         return QuestionResponse::whereHas('question', function ($query) use ($module) {
-            $query->where('questionable_id', $module->id)->where('question_type', 'short');
+            $query->whereHas('test', function ($query) use ($module) {
+                $query->where('testable_id', $module->id);
+            })->where('question_type', 'short');
         })->with('question')->latest()->paginate($request->per_page ?? 10)->through(function ($response) {
             return [
                 'id' => $response->id,

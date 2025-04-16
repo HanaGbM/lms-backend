@@ -32,19 +32,39 @@ class StudentModuleController extends Controller
 
     public function moduleTests(Request $request, StudentModule $studentModule)
     {
-
         Gate::authorize('read_module_tests');
 
-        return $studentModule->moduleTeacher->module->tests()->when(function ($query) {
+        return $studentModule->moduleTeacher->tests()->when(function ($query) {
             $query->where('is_custom', true)
                 ->whereHas('studentContent', function ($query) {
                     $query->where('student_id', auth()->id());
                 })->orWhere('is_custom', false);
         })->when($request->has('search'), function ($query) use ($request) {
             $query->where('title', 'like', "%{$request->search}%");
-        })->latest()->paginate($request->per_page ?? 10)->through(function ($question) {
-            return $this->score($question);
-        });
+        })->latest()->paginate($request->per_page ?? 10)
+            ->through(function ($test) {
+                $questionCount = $test->questions()->count();
+                $responseCount = $test->questions()
+                    ->whereHas('responses', function ($query) {
+                        $query->where('user_id', auth()->id());
+                    })->count();
+                $isCompleted = $questionCount === $responseCount;
+                return [
+                    'id' => $test->id,
+                    'name' => $test->name,
+                    'description' => $test->description,
+                    'is_active' => $test->is_active,
+                    'start_date' => $test->start_date,
+                    'due_date' => $test->due_date,
+                    'duration' => $test->duration,
+                    'duration_unit' => $test->duration_unit,
+                    'is_custom' => $test->is_custom,
+                    'created_at' => $test->created_at,
+                    'question_count' => $questionCount,
+                    'response_count' => $responseCount,
+                    'is_completed' =>  $isCompleted
+                ];
+            });
     }
 
     public function testQuestions(Request $request, Test $test)
