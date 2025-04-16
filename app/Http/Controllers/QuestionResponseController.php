@@ -70,6 +70,7 @@ class QuestionResponseController extends StudentModuleController
                 $isCorrect = $response->option->is_correct;
             }
             return [
+                'id' => $response->id,
                 'score' => $score,
                 'score_value' => $response->question->score_value,
                 'question_type' => $response->question->question_type,
