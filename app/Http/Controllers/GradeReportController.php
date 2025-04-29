@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\QuestionResponse;
+use App\Models\StudentModule;
 use App\Models\Test;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -76,5 +77,79 @@ class GradeReportController extends Controller
             'overall_total_score_value' => $overallTotalScoreValue,
             'by_question_type' => $responses
         ];
+    }
+
+    public function moduleGrades(StudentModule $studentModule)
+    {
+        // Gate::authorize('readGradeReport', QuestionResponse::class);
+        return $studentModule->moduleTeacher->tests->map(function ($test) {
+
+            $questionCount = $test->questions()->count();
+            $responseCount = $test->questions()
+                ->whereHas('responses', function ($query) {
+                    $query->where('user_id', Auth::id());
+                })->count();
+            $isCompleted = $questionCount === $responseCount;
+
+            $responses = $test->questions()
+                ->whereHas('responses', function ($query) {
+                    $query->where('user_id', Auth::id());
+                })->get();
+
+            $scoreValue = $responses->sum('score_value');
+            $questionValue = $test->questions()->sum('score_value');
+
+            $percentage = 0;
+
+            if ($questionValue > 0) {
+                $percentage = ($scoreValue / $questionValue) * 100;
+            }
+            $gradeData = $this->getGradeAndRemarkFromPercentage($percentage);
+
+            return [
+                'id' => $test->id,
+                'name' => $test->name,
+                'question_count' => $questionCount,
+                'response_count' => $responseCount,
+                'value' => $questionValue,
+                'score' => $scoreValue,
+                'points' => $questionValue . '/' . $scoreValue,
+                'point_by_percent' => $percentage  . '/' . 100,
+                'grade' => $gradeData['grade'],
+                'remark' => $gradeData['remark'],
+                // 'responses' => $responses,
+                'is_completed' => $questionCount == 0 ? false : $isCompleted,
+                'created_at' => $test->created_at,
+            ];
+        });
+    }
+
+    private function getGradeAndRemarkFromPercentage($percentage)
+    {
+        if ($percentage >= 95) {
+            return ['grade' => 'A+', 'remark' => 'Excellent'];
+        } elseif ($percentage >= 90) {
+            return ['grade' => 'A', 'remark' => 'Very Good'];
+        } elseif ($percentage >= 85) {
+            return ['grade' => 'A-', 'remark' => 'Very Good'];
+        } elseif ($percentage >= 80) {
+            return ['grade' => 'B+', 'remark' => 'Good'];
+        } elseif ($percentage >= 75) {
+            return ['grade' => 'B', 'remark' => 'Good'];
+        } elseif ($percentage >= 70) {
+            return ['grade' => 'B-', 'remark' => 'Good'];
+        } elseif ($percentage >= 65) {
+            return ['grade' => 'C+', 'remark' => 'Fair'];
+        } elseif ($percentage >= 60) {
+            return ['grade' => 'C', 'remark' => 'Fair'];
+        } elseif ($percentage >= 55) {
+            return ['grade' => 'C-', 'remark' => 'Fair'];
+        } elseif ($percentage >= 53) {
+            return ['grade' => 'D+', 'remark' => 'Poor'];
+        } elseif ($percentage >= 50) {
+            return ['grade' => 'D-', 'remark' => 'Poor'];
+        } else {
+            return ['grade' => 'F', 'remark' => 'Fail'];
+        }
     }
 }

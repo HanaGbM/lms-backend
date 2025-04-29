@@ -42,8 +42,10 @@ class StudentController extends StudentModuleController
 
         return StudentModule::where('student_id', auth()->id())
             ->when($request->has('search'), function ($query) use ($request) {
-                $query->whereHas('module', function ($query) use ($request) {
-                    $query->where('title', 'like', "%{$request->search}%");
+                $query->whereHas('moduleTeacher', function ($query) use ($request) {
+                    $query->whereHas('module', function ($query) use ($request) {
+                        $query->where('title', 'like', "%{$request->search}%");
+                    });
                 });
             })->latest()->paginate($request->per_page ?? 10)->through(function ($studentModule) {
 

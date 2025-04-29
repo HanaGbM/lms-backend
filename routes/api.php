@@ -151,6 +151,9 @@ Route::group([
         Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
         Route::get('grade-report/{test}', [GradeReportController::class, 'myGrade']);
 
+        Route::get('module-grades/{studentModule}', [GradeReportController::class, 'moduleGrades']);
+        // Route::get('grade-report/{test}/{student}', [GradeReportController::class, 'studentGrade']);
+
         Route::get('get-calendars', [CalendarController::class, 'index']);
     });
 });
