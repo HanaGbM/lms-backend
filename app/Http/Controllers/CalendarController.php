@@ -81,8 +81,6 @@ class CalendarController extends Controller
         return array_values($eventMap);
     }
 
-
-
     private function getTestEvents(Carbon $startDate, Carbon $endDate, $moduleId): array
     {
         $tests = Test::where(function ($query) use ($startDate, $endDate, $moduleId) {
@@ -131,11 +129,6 @@ class CalendarController extends Controller
     {
         $meetings = Meeting::where(function ($query) use ($startDate, $endDate, $moduleId) {
             $query->whereBetween('start_date', [$startDate, $endDate])
-                ->when($moduleId, function ($query) use ($moduleId) {
-                    $query->whereHas('testable', function ($q) use ($moduleId) {
-                        $q->where('testable_id', $moduleId);
-                    });
-                })
                 ->orWhereBetween('end_date', [$startDate, $endDate])
                 ->orWhere(function ($q) use ($startDate, $endDate) {
                     $q->where('start_date', '<=', $startDate)
