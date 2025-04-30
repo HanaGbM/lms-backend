@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('announcements', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('created_by')->constrained('users')->cascadeOnDelete();
+            $table->uuid('announcementable_id')->nullable();
+            $table->string('announcementable_type')->nullable();
+            $table->index(['announcementable_id', 'announcementable_type']);
             $table->string('title');
             $table->text('content');
             $table->dateTime('start_date');

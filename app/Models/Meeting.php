@@ -26,6 +26,8 @@ class Meeting extends Model implements HasMedia
     ];
     protected $hidden = [
         'status',
+        'meetingable_id',
+        'meetingable_type',
         'updated_at',
         'deleted_at',
     ];
@@ -50,5 +52,11 @@ class Meeting extends Model implements HasMedia
     public function invites()
     {
         return $this->hasMany(UserInvite::class, 'meeting_id', 'id');
+    }
+
+
+    public function meetingable()
+    {
+        return $this->morphTo();
     }
 }

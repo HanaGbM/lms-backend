@@ -49,6 +49,10 @@ class Announcement extends Model
         return $this->morphMany(StudentContent::class, 'contentable');
     }
 
+    public function announcementable()
+    {
+        return $this->morphTo();
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

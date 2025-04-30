@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use App\Models\Meeting;
 use App\Models\Test;
 use Illuminate\Http\Request;
@@ -18,6 +19,8 @@ class CalendarController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'module_id' => 'nullable|exists:module_teachers,id',
         ]);
+
+        // dd($request->module_id);
 
         $startDate = Carbon::parse($request->input('start_date'));
         $endDate = Carbon::parse($request->input('end_date'));
@@ -56,12 +59,28 @@ class CalendarController extends Controller
             }
         }
 
+        $announcementEvents = $this->getAnnouncementEvents($startDate, $endDate, $request->input('module_id'));
+        foreach ($announcementEvents as $dateString => $events) {
+            if (isset($dates[$dateString])) {
+                $dates[$dateString]['events'] = array_merge($dates[$dateString]['events'], $events);
+            }
+        }
+
 
         $eventMap = [];
+
 
         foreach ($dates as $date) {
             foreach ($date['events'] as $event) {
                 $eventId = $event['id'];
+
+                if (isset($event['test_id'])) {
+                    $calendar = 'test';
+                } elseif (isset($event['meeting_id'])) {
+                    $calendar = 'meeting';
+                } else {
+                    $calendar = 'announcement';
+                }
 
                 if (!isset($eventMap[$eventId])) {
                     $eventMap[$eventId] = [
@@ -71,7 +90,7 @@ class CalendarController extends Controller
                         'end' => $event['end'],
                         'allDay' => true,
                         'extendedProps' => [
-                            'calendar' => isset($event['test_id']) ? 'test' : 'meeting',
+                            'calendar' => $calendar,
                         ],
                     ];
                 }
@@ -85,15 +104,11 @@ class CalendarController extends Controller
     {
         $tests = Test::where(function ($query) use ($startDate, $endDate, $moduleId) {
             $query->whereBetween('start_date', [$startDate, $endDate])
+                ->whereBetween('due_date', [$startDate, $endDate])
                 ->when($moduleId, function ($query) use ($moduleId) {
                     $query->whereHas('testable', function ($q) use ($moduleId) {
                         $q->where('testable_id', $moduleId);
                     });
-                })
-                ->orWhereBetween('due_date', [$startDate, $endDate])
-                ->orWhere(function ($q) use ($startDate, $endDate) {
-                    $q->where('start_date', '<=', $startDate)
-                        ->where('due_date', '>=', $endDate);
                 });
         })->get();
 
@@ -129,13 +144,11 @@ class CalendarController extends Controller
     {
         $meetings = Meeting::where(function ($query) use ($startDate, $endDate, $moduleId) {
             $query->whereBetween('start_date', [$startDate, $endDate])
-                ->orWhereBetween('end_date', [$startDate, $endDate])
-                ->orWhere(function ($q) use ($startDate, $endDate) {
-                    $q->where('start_date', '<=', $startDate)
-                        ->where('end_date', '>=', $endDate);
+                ->whereBetween('end_date', [$startDate, $endDate])
+                ->when($moduleId, function ($query) use ($moduleId) {
+                    $query->where('meetingable_id', $moduleId);;
                 });
-        })
-            ->get();
+        })->get();
 
         $events = [];
 
@@ -159,6 +172,45 @@ class CalendarController extends Controller
                     'meeting_url' => $meeting->url,
                     'start' => $meeting->start_date,
                     'end' => $meeting->end_date
+                ];
+            }
+        }
+
+        return $events;
+    }
+
+    private function getAnnouncementEvents(Carbon $startDate, Carbon $endDate, $moduleId): array
+    {
+        $announcements = Announcement::where(function ($query) use ($startDate, $endDate, $moduleId) {
+            $query->whereBetween('start_date', [$startDate, $endDate])
+                ->whereBetween('end_date', [$startDate, $endDate])
+                ->when($moduleId, function ($query) use ($moduleId) {
+                    $query->where('announcementable_id', $moduleId);;
+                });
+        })->get();
+
+        $events = [];
+
+        foreach ($announcements as $announcement) {
+            $announcementStart = Carbon::parse($announcement->start_date);
+            $announcementEnd = Carbon::parse($announcement->end_date);
+
+            $announcementPeriod = CarbonPeriod::create($announcementStart, $announcementEnd);
+
+            foreach ($announcementPeriod as $day) {
+                $dayString = $day->format('Y-m-d');
+
+                if (!isset($events[$dayString])) {
+                    $events[$dayString] = [];
+                }
+
+                $events[$dayString][] = [
+                    'id' => $announcement->id,
+                    'message' => "Your announcement {$announcement->title} is scheduled for {$announcementStart->format('Y-m-d')}",
+                    'announcement_id' => $announcement->id,
+                    'announcement_url' => null,
+                    'start' => $announcement->start_date,
+                    'end' => $announcement->end_date
                 ];
             }
         }

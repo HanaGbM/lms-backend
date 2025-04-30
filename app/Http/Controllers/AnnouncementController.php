@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAnnouncementRequest;
 use App\Http\Requests\UpdateAnnouncementRequest;
 use App\Models\Announcement;
+use App\Models\ModuleTeacher;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -45,6 +46,7 @@ class AnnouncementController extends Controller
                     })
                     ->orWhere('is_custom', false);
             })
+
             ->paginate(10)
             ->through(function ($announcement) {
                 return [
@@ -76,6 +78,12 @@ class AnnouncementController extends Controller
                 'end_date' => $request->end_date,
                 'is_custom' => $request->is_custom,
             ]);
+
+            if ($request->has('teacher_module_id')) {
+                $announcement->announcementable_type = ModuleTeacher::class;
+                $announcement->announcementable_id = $request->teacher_module_id;
+                $announcement->save();
+            }
 
             if ($request->is_custom) {
                 foreach ($request->student_ids as  $value) {

@@ -22,6 +22,7 @@ class StoreMeetingRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'teacher_module_id' => ['nullable', 'exists:module_teachers,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'url' => ['nullable', 'url'],
@@ -30,8 +31,9 @@ class StoreMeetingRequest extends FormRequest
             'end_date' => ['required', 'date', 'after_or_equal:start_date', 'after_or_equal:today'],
             'start_time' => ['required_if:all_day,false', 'date_format:H:i', 'before_or_equal:end_time', 'after_or_equal:00:00'],
             'end_time' => ['required_if:all_day,false', 'date_format:H:i', 'after_or_equal:start_time', 'before:23:59'],
-            'participants' => ['required', 'array'],
-            'participants.*' => ['exists:users,id'],
+            'participants' => ['required_without:teacher_module_id', 'array'],
+            'participants.*' => ['required', 'exists:users,id'],
+
         ];
     }
 }

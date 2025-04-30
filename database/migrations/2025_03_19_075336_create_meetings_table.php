@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('meetings', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('meetingable_id')->nullable();
+            $table->string('meetingable_type')->nullable();
+            $table->index(['meetingable_id', 'meetingable_type']);
             $table->string('title');
             $table->string('url')->nullable();
             $table->text('description')->nullable();

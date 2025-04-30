@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMeetingRequest;
 use App\Http\Requests\UpdateMeetingRequest;
 use App\Models\Meeting;
+use App\Models\ModuleTeacher;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -41,11 +42,19 @@ class MeetingController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            foreach ($request->participants as $value) {
-                $meeting->invites()->create([
-                    'user_id' => $value,
-                    'status' => 0,
-                ]);
+            if ($request->has('teacher_module_id')) {
+                $meeting->meetingable_type = ModuleTeacher::class;
+                $meeting->meetingable_id = $request->teacher_module_id;
+                $meeting->save();
+            }
+
+            if ($request->participants) {
+                foreach ($request->participants as $value) {
+                    $meeting->invites()->create([
+                        'user_id' => $value,
+                        'status' => 0,
+                    ]);
+                }
             }
 
             DB::commit();

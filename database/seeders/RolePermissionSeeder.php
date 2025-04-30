@@ -54,6 +54,7 @@ class RolePermissionSeeder extends Seeder
             $adminPermissions[] = "{$prefix}discussion";
             $adminPermissions[] = "{$prefix}reply";
             $adminPermissions[] = "{$prefix}user";
+            $adminPermissions[] = "{$prefix}role";
             $adminPermissions[] = "{$prefix}module";
             $teacherPermissions[] = "{$prefix}chapter";
             $teacherPermissions[] = "{$prefix}chapter_material";

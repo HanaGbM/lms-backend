@@ -22,6 +22,7 @@ class StoreAnnouncementRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'teacher_module_id' => ['nullable', 'exists:module_teachers,id'],
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'start_date' => 'required|date|after_or_equal:today',

@@ -42,6 +42,16 @@ class ModuleTeacher extends Model
         return $this->morphMany(Test::class, 'testable');
     }
 
+    public function meetings()
+    {
+        return $this->morphMany(Meeting::class, 'meetingable');
+    }
+
+    public function announcements()
+    {
+        return $this->morphMany(Announcement::class, 'announcementable');
+    }
+
     /**
      * Get all of the students for the ModuleTeacher
      *
