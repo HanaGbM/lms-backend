@@ -28,7 +28,7 @@ class ResponseMiddleware
     {
         return response()->json([
             'success' => true,
-            'message' => $response->original ?? $response->statusText(),
+            'message' =>  $response->statusText(),
             'status' => $response->status() ?? 200,
             'data' => $response->original ? $response->original : [],
         ], $response->status() ?? 200);

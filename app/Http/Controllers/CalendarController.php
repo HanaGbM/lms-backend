@@ -8,7 +8,7 @@ use App\Models\Test;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class CalendarController extends Controller
 {
@@ -102,15 +102,24 @@ class CalendarController extends Controller
 
     private function getTestEvents(Carbon $startDate, Carbon $endDate, $moduleId): array
     {
-        $tests = Test::where(function ($query) use ($startDate, $endDate, $moduleId) {
+        $tests = Test::where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('start_date', [$startDate, $endDate])
                 ->whereBetween('due_date', [$startDate, $endDate])
-                ->when($moduleId, function ($query) use ($moduleId) {
-                    $query->whereHas('testable', function ($q) use ($moduleId) {
-                        $q->where('testable_id', $moduleId);
-                    });
+                ->orWhere(function ($q) use ($startDate, $endDate) {
+                    $q->where('start_date', '<=', $startDate)
+                        ->where('due_date', '>=', $startDate);
                 });
-        })->get();
+        })->when(!$moduleId, function ($query) {
+            $query->whereHas('studentContent', function ($q) {
+                $q->where('student_id', Auth::id());
+            });
+        })->when($moduleId, function ($query) use ($moduleId) {
+            $query->whereHas('testable', function ($q) use ($moduleId) {
+                $q->where('testable_id', $moduleId);
+            });
+        })->orWhere('created_by', Auth::id())
+            ->where('is_active', true)
+            ->get();
 
         $events = [];
 
@@ -142,13 +151,20 @@ class CalendarController extends Controller
 
     private function getMeetingEvents(Carbon $startDate, Carbon $endDate, $moduleId): array
     {
-        $meetings = Meeting::where(function ($query) use ($startDate, $endDate, $moduleId) {
+        $meetings = Meeting::where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('start_date', [$startDate, $endDate])
-                ->whereBetween('end_date', [$startDate, $endDate])
-                ->when($moduleId, function ($query) use ($moduleId) {
-                    $query->where('meetingable_id', $moduleId);;
+                ->orWhereBetween('end_date', [$startDate, $endDate])
+                ->orWhere(function ($q) use ($startDate, $endDate) {
+                    $q->where('start_date', '<=', $startDate)
+                        ->where('end_date', '>=', $endDate);
                 });
-        })->get();
+        })->when(!$moduleId, function ($query) {
+            $query->whereHas('invites', function ($q) {
+                $q->where('user_id', Auth::id());
+            });
+        })->when($moduleId, function ($query) use ($moduleId) {
+            $query->where('meetingable_id', $moduleId);;
+        })->orWhere('created_by', Auth::id())->get();
 
         $events = [];
 
@@ -181,13 +197,22 @@ class CalendarController extends Controller
 
     private function getAnnouncementEvents(Carbon $startDate, Carbon $endDate, $moduleId): array
     {
-        $announcements = Announcement::where(function ($query) use ($startDate, $endDate, $moduleId) {
+        $announcements = Announcement::where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('start_date', [$startDate, $endDate])
-                ->whereBetween('end_date', [$startDate, $endDate])
-                ->when($moduleId, function ($query) use ($moduleId) {
-                    $query->where('announcementable_id', $moduleId);;
+                ->orWhereBetween('end_date', [$startDate, $endDate])
+                ->orWhere(function ($q) use ($startDate, $endDate) {
+                    $q->where('start_date', '<=', $startDate)
+                        ->where('end_date', '>=', $endDate);
                 });
-        })->get();
+        })->when(!$moduleId, function ($query) {
+            $query->whereHas('studentContent', function ($q) {
+                $q->where('student_id', Auth::id());
+            });
+        })->when($moduleId, function ($query) use ($moduleId) {
+            $query->where('announcementable_id', $moduleId);;
+        })->orWhere('created_by', Auth::id())
+            ->where('is_active', true)
+            ->get();
 
         $events = [];
 
