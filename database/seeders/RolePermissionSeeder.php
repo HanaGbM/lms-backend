@@ -101,7 +101,6 @@ class RolePermissionSeeder extends Seeder
         foreach ($permissionPrefixes as $prefix) {
             $studentPermissions[] = "{$prefix}discussion";
         }
-        $studentPermissions[] = "read_module";
         $studentPermissions[] = "read_module_tests";
         $studentPermissions[] = "read_test_questions";
         $studentPermissions[] = "read_module_chapters";
