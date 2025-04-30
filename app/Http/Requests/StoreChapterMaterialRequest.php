@@ -25,7 +25,7 @@ class StoreChapterMaterialRequest extends FormRequest
             'chapter_id' => 'required|exists:chapters,id',
             'name' => 'required|string|unique:chapter_materials,name,NULL,id,chapter_id,' . $this->chapter_id,
             'description' => 'required|string',
-            'file' => 'nullable|file',
+            'file' => 'nullable|file|max:1024000',
             'is_custom' => 'required|boolean',
             'student_ids' => 'required_if:is_custom,true|array',
             'student_ids.*' => 'required|exists:users,id',
