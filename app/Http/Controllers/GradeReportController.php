@@ -158,28 +158,14 @@ class GradeReportController extends Controller
 
     private function getGradeAndRemarkFromPercentage($percentage)
     {
-        if ($percentage >= 95) {
-            return ['grade' => 'A+', 'remark' => 'Excellent'];
-        } elseif ($percentage >= 90) {
-            return ['grade' => 'A', 'remark' => 'Very Good'];
-        } elseif ($percentage >= 85) {
-            return ['grade' => 'A-', 'remark' => 'Very Good'];
+        if ($percentage >= 90) {
+            return ['grade' => 'A', 'remark' => 'Excellent'];
         } elseif ($percentage >= 80) {
-            return ['grade' => 'B+', 'remark' => 'Good'];
-        } elseif ($percentage >= 75) {
-            return ['grade' => 'B', 'remark' => 'Good'];
+            return ['grade' => 'B', 'remark' => 'Very Good'];
         } elseif ($percentage >= 70) {
-            return ['grade' => 'B-', 'remark' => 'Good'];
-        } elseif ($percentage >= 65) {
-            return ['grade' => 'C+', 'remark' => 'Fair'];
+            return ['grade' => 'C', 'remark' => 'Good'];
         } elseif ($percentage >= 60) {
-            return ['grade' => 'C', 'remark' => 'Fair'];
-        } elseif ($percentage >= 55) {
-            return ['grade' => 'C-', 'remark' => 'Fair'];
-        } elseif ($percentage >= 53) {
-            return ['grade' => 'D+', 'remark' => 'Poor'];
-        } elseif ($percentage >= 50) {
-            return ['grade' => 'D-', 'remark' => 'Poor'];
+            return ['grade' => 'D', 'remark' => 'Poor'];
         } else {
             return ['grade' => 'F', 'remark' => 'Fail'];
         }
