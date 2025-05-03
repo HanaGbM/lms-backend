@@ -91,14 +91,46 @@ class GradeReportController extends Controller
                 })->count();
             $isCompleted = $questionCount === $responseCount;
 
-            $responses = $test->questions()
-                ->whereHas('responses', function ($query) {
-                    $query->where('user_id', Auth::id());
-                })->get();
 
-            $scoreValue = $responses->sum('score_value');
+            $questions = $test->questions()
+                ->with([
+                    'options',
+                    'responses' => function ($query) {
+                        $query->where('user_id', Auth::id());
+                    }
+                ])
+                ->get();
+
+            $results = [];
+
+            foreach ($questions as $question) {
+                $userResponse = $question->responses->first();
+                $earnedScore = 0;
+
+                if ($question->question_type === 'choice') {
+                    $correctOptionId = $question->options->where('is_correct', true)->first()->id;
+
+                    if ($userResponse && $userResponse->question_option_id === $correctOptionId) {
+                        $earnedScore = $question->score_value;
+                    }
+                } elseif ($question->question_type === 'short') {
+                    if ($userResponse) {
+                        $earnedScore = $userResponse->score ?? 0;
+                    }
+                }
+
+                $results[] = [
+                    'question_id' => $question->id,
+                    'question_type' => $question->question_type,
+                    'score_awarded' => $earnedScore,
+                    'max_score' => $question->score_value,
+                    'user_response' => $userResponse,
+                ];
+            }
+
+            $scoreValue = collect($results)->sum('score_awarded');
+
             $questionValue = $test->questions()->sum('score_value');
-
             $percentage = 0;
 
             if ($questionValue > 0) {
@@ -113,7 +145,7 @@ class GradeReportController extends Controller
                 'response_count' => $responseCount,
                 'value' => $questionValue,
                 'score' => $scoreValue,
-                'points' => $questionValue . '/' . $scoreValue,
+                'points' => $scoreValue . '/' . $questionValue,
                 'point_by_percent' => $percentage  . '/' . 100,
                 'grade' => $gradeData['grade'],
                 'remark' => $gradeData['remark'],
