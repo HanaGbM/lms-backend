@@ -100,12 +100,20 @@ class ChapterController extends Controller
         try {
             DB::beginTransaction();
 
+            if ($request->has('parent_id')) {
+                $parent =  Chapter::find($request->parent_id);
+                if ($parent->module_id !== $request->module_id) {
+                    abort(403, "Parent chapter does not belong to the same module.");
+                }
+            }
+
             $chapter = Chapter::create([
                 'module_id' => $request->module_id,
                 'name' => $request->name,
                 'description' => $request->description,
                 'order' => Chapter::where('module_id', $request->module_id)->count() + 1,
                 'is_custom' => $request->is_custom,
+                'parent_id' => $request->parent_id,
             ]);
 
             if ($request->is_custom) {

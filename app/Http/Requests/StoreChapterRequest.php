@@ -23,6 +23,7 @@ class StoreChapterRequest extends FormRequest
     {
         return [
             'module_id' => 'required|exists:modules,id',
+            'parent_id' => 'nullable|exists:chapters,id',
             'name' => 'required|string|unique:chapters,name,NULL,id,module_id,' . $this->module_id,
             'description' => 'required|string',
             'is_custom' => 'required|boolean',
