@@ -115,8 +115,6 @@ Route::group([
         Route::resource('chapter-materials', ChapterMaterialController::class);
         Route::delete('delete-file/{id}', [ChapterMaterialController::class, 'deleteFile']);
 
-
-
         /**
          * Teachers Endpoints */
         Route::get('my-modules', [ModuleController::class, 'myModules']);
@@ -148,6 +146,8 @@ Route::group([
 
         Route::get('test-questions/{test}', [StudentModuleController::class, 'testQuestions']);
 
+        Route::post('start-test/{test}', [QuestionResponseController::class, 'startTest']);
+        Route::post('complete-test/{test}', [QuestionResponseController::class, 'completeTest']);
         Route::post('question-response', [QuestionResponseController::class, 'questionResponse']);
         Route::get('grade-report/{test}', [GradeReportController::class, 'myGrade']);
 

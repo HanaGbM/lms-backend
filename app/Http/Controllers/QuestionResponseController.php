@@ -8,8 +8,10 @@ use App\Models\Module;
 use App\Models\ModuleTeacher;
 use App\Models\Question;
 use App\Models\QuestionResponse;
+use App\Models\StudentTest;
 use App\Models\Test;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,10 +19,91 @@ use Illuminate\Support\Facades\Gate;
 
 class QuestionResponseController extends StudentModuleController
 {
+
+    public function startTest(Request $request, Test $test)
+    {
+        DB::beginTransaction();
+
+        try {
+            $timezone = 'Africa/Addis_Ababa';
+
+            $testStartDate = Carbon::parse($test->start_date)->timezone($timezone);
+            $testEndDate = Carbon::parse($test->due_date)->timezone($timezone);
+
+            $now = Carbon::now($timezone);
+            if (!$now->between($testStartDate, $testEndDate)) {
+                abort(403, 'Test is not available at this time. It starts on ' . $testStartDate->toDateTimeString() . ' and ends on ' . $testEndDate->toDateTimeString());
+            }
+            $studentTest = StudentTest::where('student_id', Auth::id())
+                ->where('test_id', $test->id)
+                ->first();
+            if ($studentTest) {
+                abort(400, 'You have already started this test.');
+            } else {
+                $studentTest = StudentTest::updateOrCreate([
+                    'student_id' => Auth::id(),
+                    'test_id' => $test->id,
+                ], [
+                    'started_at' => now(),
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Test started successfully',
+                    'test' => $test,
+                    'student_test' => $studentTest,
+                ], 200);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function completeTest(Request $request, Test $test)
+    {
+        DB::beginTransaction();
+
+        try {
+            $timezone = 'Africa/Addis_Ababa';
+
+            $testStartDate = Carbon::parse($test->start_date)->timezone($timezone);
+            $testEndDate = Carbon::parse($test->due_date)->timezone($timezone);
+
+            $now = Carbon::now($timezone);
+            if (!$now->between($testStartDate, $testEndDate)) {
+                abort(403, 'Test is not available at this time. It starts on ' . $testStartDate->toDateTimeString() . ' and ends on ' . $testEndDate->toDateTimeString());
+            }
+            $studentTest = StudentTest::where('student_id', Auth::id())
+                ->where('test_id', $test->id)
+                ->first();
+            if ($studentTest) {
+                abort(400, 'You have already started this test.');
+            } else {
+                $studentTest = StudentTest::updateOrCreate([
+                    'student_id' => Auth::id(),
+                    'test_id' => $test->id,
+                ], [
+                    'started_at' => now(),
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Test started successfully',
+                    'test' => $test,
+                    'student_test' => $studentTest,
+                ], 200);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
     public function questionResponse(StoreQuestionResponseRequest $request)
     {
         Gate::authorize('create', QuestionResponse::class);
-
 
         $this->validation($request);
 
@@ -118,10 +201,38 @@ class QuestionResponseController extends StudentModuleController
         return response()->json(['message' => 'Response evaluated successfully'], 200);
     }
 
-
     private function validation($request)
     {
+        $test = Test::findOrFail($request->test_id);
+        $studentTest = StudentTest::where('student_id', Auth::id())
+            ->where('test_id', $test->id)
+            ->first();
+
         $validationRules = [];
+
+        if (!$studentTest) {
+            abort(403, "Test is not started yet. Please start the test before submitting responses.");
+        }
+
+        $testDuration = $test->duration;
+        $testDurationUnit = $test->duration_unit; // minutes, hours
+
+        // Check if test duration has expired
+        $startedAt = Carbon::parse($studentTest->started_at);
+        $now = Carbon::now();
+
+        if ($testDurationUnit === 'minutes') {
+            $expiresAt = $startedAt->copy()->addMinutes($testDuration);
+        } elseif ($testDurationUnit === 'hours') {
+            $expiresAt = $startedAt->copy()->addHours($testDuration);
+        } else {
+            $expiresAt = $startedAt;
+        }
+
+        if ($now->greaterThan($expiresAt)) {
+            abort(403, "Test duration has expired. You cannot submit responses., ended at: " . $expiresAt->toDateTimeString());
+        }
+        dd($testDuration, $testDurationUnit);
 
         foreach ($request->input('responses') as $key => $response) {
             $question = Question::find($response['question_id']);

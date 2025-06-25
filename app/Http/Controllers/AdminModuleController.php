@@ -62,6 +62,12 @@ class AdminModuleController extends Controller
                     'id' => $moduleTeacher->id,
                     'teacher_id' => $moduleTeacher->teacher_id,
                     'name' => $moduleTeacher->teacher->name,
+                    'module' => [
+                        'id' => $moduleTeacher->module->id,
+                        'title' => $moduleTeacher->module->title,
+                        'description' => $moduleTeacher->module->description,
+                        'cover_url' => $moduleTeacher->module->getFirstMediaUrl('cover'),
+                    ],
                     'username' => $moduleTeacher->teacher->username,
                     'phone' => $moduleTeacher->teacher->phone,
                     'email' => $moduleTeacher->teacher->email,

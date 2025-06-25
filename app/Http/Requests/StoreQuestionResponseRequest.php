@@ -22,6 +22,7 @@ class StoreQuestionResponseRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'test_id' => 'required|exists:tests,id',
             'responses' => 'required|array',
             'responses.*.question_id' => 'required|exists:questions,id',
         ];
