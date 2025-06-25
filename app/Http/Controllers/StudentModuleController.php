@@ -80,21 +80,22 @@ class StudentModuleController extends Controller
 
         if (!$studentTest) {
             return [
-                'choice' => [],
-                'short' => [],
-                'choice_short' => [],
+                'questions' => [],
                 'is_started' => false,
+                'duration' => $test->duration,
+                'duration_unit' => $test->duration_unit,
+                'start_date' => null,
             ];
         }
 
         return [
-            $test->questions()->when($request->has('search'), function ($query) use ($request) {
+            'questions' =>  $test->questions()->when($request->has('search'), function ($query) use ($request) {
                 $query->where('name', 'like', "%{$request->search}%");
             })->get()->groupBy('question_type'),
             'is_started' => true,
             'duration' => $test->duration,
             'duration_unit' => $test->duration_unit,
-            'start_date' => $studentTest->start_date,
+            'start_date' => $studentTest->started_at,
 
         ];
     }
