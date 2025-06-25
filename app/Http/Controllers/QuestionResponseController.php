@@ -121,7 +121,7 @@ class QuestionResponseController extends StudentModuleController
             $response->save();
         }
 
-        DB::commit();
+        // DB::commit();
 
         return response()->json(
             ['message' => count($request->responses) . ' responses saved successfully'],
@@ -214,8 +214,8 @@ class QuestionResponseController extends StudentModuleController
             abort(403, "Test is not started yet. Please start the test before submitting responses.");
         }
 
-        $testDuration = $test->duration;
-        $testDurationUnit = $test->duration_unit; // minutes, hours
+        $testDuration = (int)$test->duration;
+        $testDurationUnit = $test->duration_unit;
 
         // Check if test duration has expired
         $startedAt = Carbon::parse($studentTest->started_at);
@@ -232,7 +232,7 @@ class QuestionResponseController extends StudentModuleController
         if ($now->greaterThan($expiresAt)) {
             abort(403, "Test duration has expired. You cannot submit responses., ended at: " . $expiresAt->toDateTimeString());
         }
-        dd($testDuration, $testDurationUnit);
+        // dd($testDuration, $testDurationUnit);
 
         foreach ($request->input('responses') as $key => $response) {
             $question = Question::find($response['question_id']);
