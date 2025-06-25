@@ -87,9 +87,16 @@ class StudentModuleController extends Controller
             ];
         }
 
-        return $test->questions()->when($request->has('search'), function ($query) use ($request) {
-            $query->where('name', 'like', "%{$request->search}%");
-        })->get()->groupBy('question_type');
+        return [
+            $test->questions()->when($request->has('search'), function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%");
+            })->get()->groupBy('question_type'),
+            'is_started' => true,
+            'duration' => $test->duration,
+            'duration_unit' => $test->duration_unit,
+            'start_date' => $studentTest->start_date,
+
+        ];
     }
 
 
