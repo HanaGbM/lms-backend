@@ -6,8 +6,10 @@ use App\Http\Requests\StoreStudentModuleRequest;
 use App\Models\Module;
 use App\Models\ModuleTeacher;
 use App\Models\StudentModule;
+use App\Models\StudentTest;
 use App\Models\Test;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -71,6 +73,19 @@ class StudentModuleController extends Controller
     {
         Gate::authorize('read_test_questions');
 
+        $studentTest = StudentTest::where('student_id', Auth::id())
+            ->where('test_id', $test->id)
+            ->first();
+
+
+        if (!$studentTest) {
+            return [
+                'choice' => [],
+                'short' => [],
+                'choice_short' => [],
+                'is_started' => false,
+            ];
+        }
 
         return $test->questions()->when($request->has('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%");
