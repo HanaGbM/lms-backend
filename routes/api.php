@@ -111,6 +111,7 @@ Route::group([
 
         Route::resource('chapters', ChapterController::class);
         Route::get('all-chapters', [ChapterController::class, 'all']);
+        Route::get('my-module-chapters/{moduleTeacher}', [ChapterController::class, 'myModuleChapters']);
         Route::post('sort-chapters', [ChapterController::class, 'sortChapters']);
         Route::resource('chapter-materials', ChapterMaterialController::class);
         Route::delete('delete-file/{id}', [ChapterMaterialController::class, 'deleteFile']);

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreChapterRequest;
 use App\Http\Requests\UpdateChapterRequest;
 use App\Models\Chapter;
 use App\Models\Module;
+use App\Models\ModuleTeacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -25,6 +26,17 @@ class ChapterController extends Controller
         ]);
 
         $module = Module::find($request->module_id);
+
+        return $module->chapters()->when($request->has('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%");
+        })->orderBy('order')
+            ->paginate($request->per_page ?? 10);
+    }
+
+    public function myModuleChapters(Request $request, ModuleTeacher $moduleTeacher)
+    {
+        Gate::authorize('viewAny', Chapter::class);
+        $module = $moduleTeacher->module;
 
         return $module->chapters()->when($request->has('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%");
