@@ -112,7 +112,7 @@ class ChapterController extends Controller
         try {
             DB::beginTransaction();
 
-            if ($request->has('parent_id')) {
+            if (isset($request->parent_id)) {
                 $parent =  Chapter::find($request->parent_id);
                 if ($parent->module_id !== $request->module_id) {
                     abort(403, "Parent chapter does not belong to the same module.");
