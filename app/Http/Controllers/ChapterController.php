@@ -27,7 +27,7 @@ class ChapterController extends Controller
 
         $module = Module::find($request->module_id);
 
-        return $module->chapters()->when($request->has('search'), function ($query) use ($request) {
+        return $module->chapters()->where('parent_id', null)->when($request->has('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%");
         })->orderBy('order')
             ->paginate($request->per_page ?? 10);
