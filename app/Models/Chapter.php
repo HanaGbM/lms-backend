@@ -24,7 +24,7 @@ class Chapter extends Model implements HasMedia
 
     protected $guarded = [];
 
-    protected $with = [];
+    protected $with = ['child'];
     protected $casts = [
         'is_active' => 'boolean',
         'is_custom' => 'boolean',
@@ -40,6 +40,11 @@ class Chapter extends Model implements HasMedia
     public function module(): BelongsTo
     {
         return $this->belongsTo(Module::class);
+    }
+
+    public function child(): HasMany
+    {
+        return $this->hasMany(Chapter::class, 'parent_id', 'id');
     }
 
     /**
