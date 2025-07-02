@@ -24,6 +24,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentModuleController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\UpcomingEventsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -156,5 +157,6 @@ Route::group([
         // Route::get('grade-report/{test}/{student}', [GradeReportController::class, 'studentGrade']);
 
         Route::get('get-calendars', [CalendarController::class, 'index']);
+        Route::get('upcoming-events', [UpcomingEventsController::class, 'upcomingEvents']);
     });
 });
