@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -19,7 +20,7 @@ class Meeting extends Model implements HasMedia
 
     protected $guarded = [];
 
-    protected $with = [];
+    protected $with = ['creator'];
 
     protected $casts = [
         'all_day' => 'boolean',
@@ -53,7 +54,15 @@ class Meeting extends Model implements HasMedia
     {
         return $this->hasMany(UserInvite::class, 'meeting_id', 'id');
     }
-
+    /**
+     * Get the creator that owns the Meeting
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
 
     public function meetingable()
     {
