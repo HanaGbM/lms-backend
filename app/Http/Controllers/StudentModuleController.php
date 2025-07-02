@@ -92,6 +92,8 @@ class StudentModuleController extends Controller
             'questions' =>  $test->questions()->when($request->has('search'), function ($query) use ($request) {
                 $query->where('name', 'like', "%{$request->search}%");
             })->get()->groupBy('question_type'),
+            'question_count' => $test->questions()->count(),
+            'test_name' => $test->name,
             'is_started' => true,
             'duration' => $test->duration,
             'duration_unit' => $test->duration_unit,
