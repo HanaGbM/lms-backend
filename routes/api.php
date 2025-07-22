@@ -22,6 +22,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentModuleController;
+use App\Http\Controllers\StudentRegistrationController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\UpcomingEventsController;
@@ -32,6 +33,7 @@ Route::group([
     'middleware' => 'api',
 ], function () {
     Route::post('login', [AuthController::class, 'login']);
+    Route::post('register', [StudentRegistrationController::class, 'register']);
 
     /**
      *  Other AuthController routes

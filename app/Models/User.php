@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -85,6 +86,10 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         'profile_photo_url',
     ];
 
+    protected $with = [
+        'student',
+    ];
+
     /**
      * Get all of the studentModules for the User
      *
@@ -122,6 +127,16 @@ class User extends Authenticatable implements JWTSubject, HasMedia
     public function enrolledCourses()
     {
         return $this->hasMany(StudentModule::class, 'student_id', 'id');
+    }
+
+    /**
+     * Get the student associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function student(): HasOne
+    {
+        return $this->hasOne(Student::class, 'user_id', 'id');
     }
 
 
