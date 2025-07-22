@@ -21,7 +21,7 @@ class StudentRegistrationController extends Controller
             'gradeLevel' => 'required|string',
             'supportSubjects' => 'required|array',
             'learningGoals' => 'required|string',
-            'tutoringTimes' => 'required|string',
+            'tutoringTime' => 'required|string',
             'deviceAccess' => 'required|boolean',
             'password' => 'required|string|min:8',
             'confirmPassword' => 'required|string|same:password',
@@ -51,7 +51,7 @@ class StudentRegistrationController extends Controller
             'support_subjects' => json_encode($request->supportSubjects),
             'learning_goals' => $request->learningGoals,
             'device_access' => $request->deviceAccess,
-            'tutoring_times' => $request->tutoringTimes,
+            'tutoring_times' => $request->tutoringTime,
         ]);
 
         DB::commit();
