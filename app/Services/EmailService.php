@@ -10,14 +10,23 @@ class EmailService
 {
     public function sendEmail($to, $subject, $templateId, $variables = [])
     {
-        $mj = new Client(env('MAILJET_APIKEY'), env('MAILJET_APISECRET'), true, ['version' => 'v3.1']);
+        $apiKey = env('MAILJET_APIKEY');
+        $apiSecret = env('MAILJET_APISECRET');
+        
+        // Validate Mailjet credentials
+        if (empty($apiKey) || empty($apiSecret)) {
+            Log::error('Mailjet credentials are missing in EmailService');
+            return false;
+        }
+        
+        $mj = new Client($apiKey, $apiSecret, true, ['version' => 'v3.1']);
 
         $body = [
             'Messages' => [
                 [
                     'From' => [
-                        'Email' => 'admin@amanueld.info',
-                        'Name' => 'LMS',
+                        'Email' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+                        'Name' => env('MAIL_FROM_NAME', 'LMS'),
                     ],
                     'To' => [
                         [
@@ -33,16 +42,37 @@ class EmailService
             ],
         ];
 
-        $response = $mj->post(Resources::$Email, ['body' => $body]);
+        try {
+            $response = $mj->post(Resources::$Email, ['body' => $body]);
 
-        // dd($response);
+            if (! $response->success()) {
+                Log::error('Failed to send email via Mailjet template', [
+                    'to' => $to,
+                    'template_id' => $templateId,
+                    'response' => $response->getData(),
+                    'status_code' => $response->getStatus(),
+                    'body' => $response->getBody()
+                ]);
+                return false;
+            }
 
-        if (! $response->success()) {
-            Log::error('Failed to send email', ['response' => $response->getData()]);
-
+            $responseData = $response->getData();
+            Log::info('Email sent successfully via Mailjet template', [
+                'to' => $to,
+                'template_id' => $templateId,
+                'message_id' => $responseData['Messages'][0]['To'][0]['MessageID'] ?? 'unknown',
+                'message_uuid' => $responseData['Messages'][0]['To'][0]['MessageUUID'] ?? 'unknown',
+                'full_response' => $responseData
+            ]);
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Exception while sending email via Mailjet', [
+                'to' => $to,
+                'template_id' => $templateId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
-
-        return true;
     }
 }

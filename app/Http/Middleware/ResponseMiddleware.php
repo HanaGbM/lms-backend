@@ -36,14 +36,18 @@ class ResponseMiddleware
 
     private static function sendError($response)
     {
+        $original = is_array($response->original ?? null) ? $response->original : [];
+        $message = $original['message'] ?? $response->statusText();
+        $errors = $original['errors'] ?? [];
+
         return response()->json([
             'success' => false,
-            'message' => $response->original['message'] ?? $response->statusText(),
+            'message' => $message,
             'status' => $response->status() ?? 500,
             'data' => [
-                'message' => $response->original['message'] ?? $response->original['error'] ?? $response->original['errors'] ?? $response->original['message'] ?? 'An error occurred',
-                'errors' => $response->original['errors'] ?? [],
-            ] ?? [],
+                'message' => $message,
+                'errors' => $errors,
+            ],
         ], $response->status() ?? 500);
     }
 }
