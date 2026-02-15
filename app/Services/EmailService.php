@@ -20,6 +20,8 @@ class EmailService
         }
         
         $mj = new Client($apiKey, $apiSecret, true, ['version' => 'v3.1']);
+        $mj->setConnectionTimeout((int) env('MAILJET_CONNECT_TIMEOUT', 10));
+        $mj->setTimeout((int) env('MAILJET_TIMEOUT', 30));
 
         $body = [
             'Messages' => [
@@ -46,31 +48,26 @@ class EmailService
             $response = $mj->post(Resources::$Email, ['body' => $body]);
 
             if (! $response->success()) {
+                $responseData = $response->getData();
                 Log::error('Failed to send email via Mailjet template', [
                     'to' => $to,
                     'template_id' => $templateId,
-                    'response' => $response->getData(),
-                    'status_code' => $response->getStatus(),
-                    'body' => $response->getBody()
+                    'response' => $responseData,
+                    'status_code' => $response->getStatus()
                 ]);
                 return false;
             }
 
-            $responseData = $response->getData();
             Log::info('Email sent successfully via Mailjet template', [
                 'to' => $to,
-                'template_id' => $templateId,
-                'message_id' => $responseData['Messages'][0]['To'][0]['MessageID'] ?? 'unknown',
-                'message_uuid' => $responseData['Messages'][0]['To'][0]['MessageUUID'] ?? 'unknown',
-                'full_response' => $responseData
+                'template_id' => $templateId
             ]);
             return true;
         } catch (\Exception $e) {
-            Log::error('Exception while sending email via Mailjet', [
+            Log::error('Exception sending email via Mailjet', [
                 'to' => $to,
                 'template_id' => $templateId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
             return false;
         }

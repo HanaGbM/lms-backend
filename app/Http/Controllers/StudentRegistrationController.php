@@ -139,6 +139,8 @@ class StudentRegistrationController extends Controller
         }
         
         $mj = new \Mailjet\Client($apiKey, $apiSecret, true, ['version' => 'v3.1']);
+        $mj->setConnectionTimeout((int) env('MAILJET_CONNECT_TIMEOUT', 10));
+        $mj->setTimeout((int) env('MAILJET_TIMEOUT', 30));
 
         // Render Blade template for HTML email
         $htmlContent = view('emails.welcome', [
