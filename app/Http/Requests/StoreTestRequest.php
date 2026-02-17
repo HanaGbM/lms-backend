@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreTestRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'model_type' => 'required|in:module,chapter',
+            'module_id' => 'required_if:model_type,module|exists:module_teachers,id',
+            'chapter_id' => 'required_if:model_type,chapter|exists:chapters,id',
+            'name' => 'required|string',
+            'start_date' => 'nullable|date',
+            'due_date' => 'nullable|date|after:start_date',
+            'duration' => 'nullable|numeric|min:1',
+            'duration_unit' => 'nullable|in:minutes,hours',
+            'is_custom' => 'required|boolean',
+            'student_ids' => 'required_if:is_custom,true|array',
+            'student_ids.*' => 'required|exists:users,id',
+        ];
+    }
+}
