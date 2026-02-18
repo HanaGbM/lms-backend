@@ -6,12 +6,11 @@ use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Models\User;
 use App\Services\EmailService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ResetPasswordController extends BaseController
 {
@@ -28,38 +27,66 @@ class ResetPasswordController extends BaseController
             'email' => 'required|email',
         ]);
 
-        $user = User::where('email', $request->email)
-            ->first();
+        $user = User::where('email', $request->email)->first();
 
         if (! $user) {
-            abort(404, 'User not found!');
+            return response()->json(['error' => 'User not found'], 404);
         }
 
-        $otp = random_int(100000, 999999);
+        $newPassword = Str::password(16);
 
-        if ($request->has('email')) {
-            $this->emailService->sendEmail(
-                $request->email,
-                'Password Reset OTP',
-                6478497,
-                [
-                    'otp' => $otp,
-                    'name' => $user->name ?? 'User',
-                ]
-            );
-        }
-
-        $encryptedOtp = Crypt::encryptString($otp);
-        $user->otp = $encryptedOtp;
-        $user->email_verified_at = null;
-        $user->otp_sent_at = Carbon::now();
-        $user->status = 1;
+        $user->password = Hash::make($newPassword);
         $user->save();
 
+        $appName = config('app.name', 'LMS');
+        $name = $user->name ?? 'User';
+
+        if (filter_var(env('MAILJET_LOG_ONLY', false), FILTER_VALIDATE_BOOLEAN)) {
+            Log::info('MAILJET_LOG_ONLY: Password reset email (not sent)', [
+                'to' => $user->email,
+                'subject' => 'Your new password',
+                'new_password' => $newPassword,
+            ]);
+        } else {
+            $this->sendPasswordResetEmail($user, $newPassword);
+        }
 
         return response()->json([
-            'message' => 'OTP sent successfully!',
+            'message' => 'A new password has been sent to your email. Please check your inbox and log in with it.',
         ]);
+    }
+
+    /**
+     * Send password reset email with the new temporary password.
+     */
+    private function sendPasswordResetEmail(User $user, string $newPassword): void
+    {
+        $appName = config('app.name', 'LMS');
+        $name = $user->name ?? 'User';
+
+        Log::info('Sending password reset email with new password', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+        ]);
+
+        $htmlContent = view('emails.password-reset-new-password', [
+            'name' => $name,
+            'newPassword' => $newPassword,
+        ])->render();
+
+        $textContent = "Hello {$name},\n\n";
+        $textContent .= "We received a request to reset your password. Your password has been reset. Use the temporary password below to log in:\n\n";
+        $textContent .= "Your temporary password: {$newPassword}\n\n";
+        $textContent .= "Log in with this password and change it to something you prefer (e.g. via Change Password in your account). Do not share this password with anyone.\n\n";
+        $textContent .= "Best regards,\nThe {$appName} Team";
+
+        $this->emailService->sendHtmlEmail(
+            $user->email,
+            'Your new password',
+            $htmlContent,
+            $textContent,
+            $name
+        );
     }
 
     public function create_password(ResetPasswordRequest $request)

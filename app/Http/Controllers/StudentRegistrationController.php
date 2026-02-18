@@ -4,12 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use App\Models\User;
+use App\Services\EmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class StudentRegistrationController extends Controller
 {
+    public function __construct(
+        protected EmailService $emailService
+    ) {}
+
     public function register(Request $request)
     {
         $request->validate([
@@ -36,7 +42,7 @@ class StudentRegistrationController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'bod' => $request->bod ?? now(),
-            'username' => $request->username ?? $this->generateUniqueUsername($request->name),
+            'username' => $request->username ?? $this->generateUniqueUsername($request->studentFullName),
             'password' => bcrypt($request->password),
         ]);
 
@@ -56,7 +62,44 @@ class StudentRegistrationController extends Controller
 
         DB::commit();
 
+        $this->sendWelcomeEmail($user);
+
         return response()->json(['message' => 'Registration successful'], 201);
+    }
+
+    /**
+     * Send welcome email to the newly registered user.
+     */
+    private function sendWelcomeEmail(User $user): void
+    {
+        $appName = config('app.name', 'LMS');
+        $name = $user->name ?? 'Student';
+
+        if (filter_var(env('MAILJET_LOG_ONLY', false), FILTER_VALIDATE_BOOLEAN)) {
+            Log::info('MAILJET_LOG_ONLY: Welcome email (not sent)', [
+                'to' => $user->email,
+                'subject' => "Welcome to {$appName}",
+                'name' => $name,
+            ]);
+            return;
+        }
+
+        $htmlContent = view('emails.welcome', [
+            'name' => $name,
+        ])->render();
+
+        $textContent = "Hello {$name},\n\n";
+        $textContent .= "Thank you for registering as a student with {$appName}.\n\n";
+        $textContent .= "Your account has been created successfully. You can now log in with your email and password to access your courses and learning materials.\n\n";
+        $textContent .= "Best regards,\nThe {$appName} Team";
+
+        $this->emailService->sendHtmlEmail(
+            $user->email,
+            "Welcome to {$appName}",
+            $htmlContent,
+            $textContent,
+            $name
+        );
     }
 
     public function generateUniqueUsername($name)
